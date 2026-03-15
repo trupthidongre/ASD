@@ -1,0 +1,508 @@
+{% extends "base.html" %}
+{% block title %}ASD Assessment — ASD Predictor{% endblock %}
+
+{% block extra_css %}
+.assess-page {
+  min-height: calc(100vh - 66px - 80px);
+  background: var(--bg2);
+  position: relative; overflow: hidden;
+}
+.assess-page::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 80% 10%, rgba(124,58,237,0.1), transparent),
+    radial-gradient(ellipse 50% 60% at 10% 80%, rgba(201,151,58,0.05), transparent);
+  pointer-events: none; z-index: 0;
+}
+.assess-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(124,58,237,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,58,237,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: linear-gradient(to bottom, transparent, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.3) 80%, transparent);
+  pointer-events: none;
+}
+
+/* PROGRESS */
+.prog-section {
+  position: relative; z-index: 2;
+  padding: 2rem 3rem 1rem;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(124,58,237,0.12);
+}
+.prog-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px;
+}
+.prog-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--purple); }
+.prog-frac { font-size: 0.88rem; font-weight: 600; color: var(--gray); }
+.prog-dots {
+  display: flex; gap: 6px; align-items: center; margin-bottom: 12px;
+}
+.prog-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: all 0.3s;
+}
+.prog-dot.answered { background: var(--purple); border-color: var(--purple); }
+.prog-dot.current {
+  background: transparent; border-color: var(--purple); width: 24px; border-radius: 4px;
+  box-shadow: 0 0 8px rgba(124,58,237,0.4);
+}
+.prog-bar-track {
+  height: 3px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden;
+}
+.prog-bar-fill {
+  height: 100%; border-radius: 100px;
+  background: linear-gradient(90deg, var(--purple), var(--purple));
+  transition: width 0.5s cubic-bezier(.22,1,.36,1);
+  box-shadow: 0 0 8px rgba(124,58,237,0.3);
+}
+
+/* MAIN */
+.assess-main {
+  position: relative; z-index: 2;
+  display: flex; justify-content: center; align-items: flex-start;
+  padding: 3rem 2rem 4rem;
+  min-height: calc(100vh - 220px);
+}
+
+.q-card {
+  width: 100%; max-width: 680px;
+  background: #ffffff;
+  border: 1px solid rgba(124,58,237,0.15);
+  border-radius: 20px;
+  backdrop-filter: blur(24px);
+  box-shadow: 0 30px 70px rgba(0,0,0,0.4), 0 0 0 1px rgba(124,58,237,0.06);
+  overflow: hidden;
+}
+.q-card-top { position: relative; }
+.q-card-top::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--purple), var(--purple), var(--lavender));
+}
+.q-card-inner { padding: 2.5rem 2.8rem; }
+
+/* SLIDE */
+.q-slide { display: none; }
+.q-slide.active { display: block; animation: slideIn 0.35s ease; }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.q-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem;
+}
+.q-num-badge {
+  background: var(--lav3);
+  border: 1px solid rgba(124,58,237,0.25);
+  color: var(--purple);
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 1px;
+  padding: 5px 12px; border-radius: 100px; white-space: nowrap;
+}
+.q-line { flex: 1; height: 1px; background: rgba(255,255,255,0.06); }
+
+.q-text {
+  font-family: var(--font-display);
+  font-size: 1.55rem; font-weight: 500; line-height: 1.45;
+  color: var(--text); margin-bottom: 2rem;
+  min-height: 90px;
+}
+
+/* OPTIONS */
+.options { display: flex; flex-direction: column; gap: 10px; }
+.opt {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 18px; border-radius: 12px;
+  border: 1.5px solid rgba(124,58,237,0.15);
+  background: var(--lav4);
+  cursor: pointer; transition: all 0.2s; user-select: none;
+}
+.opt:hover { border-color: var(--lavender); background: var(--lav3); transform: translateX(4px); }
+.opt.sel-yes {
+  border-color: var(--purple);
+  background: rgba(124,58,237,0.12);
+  box-shadow: 0 0 0 1px rgba(124,58,237,0.2);
+}
+.opt.sel-no {
+  border-color: rgba(201,151,58,0.5);
+  background: rgba(201,151,58,0.08);
+  box-shadow: 0 0 0 1px rgba(201,151,58,0.15);
+}
+.opt-radio {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid rgba(124,58,237,0.3);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.opt.sel-yes .opt-radio { border-color: var(--purple); background: var(--purple); }
+.opt.sel-no  .opt-radio { border-color: var(--lavender); background: var(--lavender); }
+.opt-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: white;
+  opacity: 0; transform: scale(0); transition: all 0.2s;
+}
+.opt.sel-yes .opt-dot, .opt.sel-no .opt-dot { opacity: 1; transform: scale(1); }
+.opt-content { flex: 1; }
+.opt-title { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.opt-sub { font-size: 0.78rem; color: var(--gray); margin-top: 2px; }
+.opt-tag {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px;
+  padding: 4px 10px; border-radius: 100px;
+  background: var(--lav4); color: #6b7280;
+  transition: all 0.2s;
+}
+.opt.sel-yes .opt-tag { background: rgba(124,58,237,0.2); color: var(--purple); }
+.opt.sel-no  .opt-tag { background: rgba(201,151,58,0.15); color: var(--lavender); }
+
+/* EXTRAS */
+.q-extras {
+  padding: 1.5rem 2.8rem 1.5rem;
+  border-top: 1px solid rgba(124,58,237,0.1);
+  display: none;
+}
+.q-extras.show { display: block; }
+.extras-label {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text2); margin-bottom: 1.2rem;
+}
+.extras-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.extra-field label {
+  display: block; font-size: 0.78rem; font-weight: 600;
+  color: var(--gray); margin-bottom: 6px;
+}
+.extra-field select, .extra-field input, .extra-field textarea {
+  width: 100%; padding: 9px 12px;
+  background: rgba(245,243,255,0.8);
+  border: 1px solid rgba(124,58,237,0.15);
+  border-radius: 8px; color: var(--text);
+  font-family: var(--font-body); font-size: 0.84rem;
+  outline: none; transition: all 0.2s; appearance: none;
+}
+.extra-field select:focus, .extra-field input:focus, .extra-field textarea:focus {
+  border-color: var(--purple); box-shadow: 0 0 0 3px rgba(124,58,237,0.08);
+}
+.extra-field select option { background: #f3effd; }
+.extra-field textarea { resize: none; grid-column: 1 / -1; }
+.extra-field .radio-row { display: flex; gap: 12px; padding-top: 4px; }
+.extra-field .radio-opt {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.83rem; color: var(--gray); cursor: pointer;
+}
+.extra-field .radio-opt input[type=radio] { accent-color: var(--purple); }
+
+/* FOOTER */
+.q-card-footer {
+  padding: 1.2rem 2.8rem 2rem;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+}
+.btn-back {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 20px; border-radius: 8px;
+  border: 1.5px solid rgba(124,58,237,0.2);
+  background: transparent; color: var(--gray);
+  font-family: var(--font-body); font-size: 0.86rem; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-back:hover:not(:disabled) { border-color: #374151; color: var(--text); }
+.btn-back:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-next {
+  display: flex; align-items: center; gap: 8px;
+  padding: 11px 26px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--purple), var(--purple2));
+  color: var(--text); font-family: var(--font-body);
+  font-size: 0.9rem; font-weight: 600; border: none; cursor: pointer;
+  box-shadow: 0 4px 15px rgba(124,58,237,0.3);
+  transition: all 0.25s;
+}
+.btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,58,237,0.45); }
+.btn-next.submit { background: linear-gradient(135deg, var(--lavender), #a57a22); box-shadow: 0 4px 15px rgba(201,151,58,0.3); }
+.btn-next.submit:hover { box-shadow: 0 8px 25px rgba(201,151,58,0.45); }
+.q-hint { text-align: center; font-size: 0.75rem; color: var(--gray); padding: 0 2.8rem 1.5rem; }
+
+/* MODAL */
+.modal-bg {
+  display: none; position: fixed; inset: 0; z-index: 9000;
+  background: rgba(245,243,255,0.85); backdrop-filter: blur(8px);
+  align-items: center; justify-content: center;
+}
+.modal-bg.open { display: flex; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal-box {
+  background: var(--bg2);
+  border: 1.5px solid rgba(124,58,237,0.2);
+  border-radius: 20px; padding: 2.5rem;
+  max-width: 420px; width: 90%; text-align: center;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+  animation: scaleIn 0.3s cubic-bezier(.22,1,.36,1);
+}
+@keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal-icon { font-size: 3rem; margin-bottom: 1rem; }
+.modal-box h3 {
+  font-family: var(--font-display); font-size: 1.8rem; font-weight: 600; color: var(--text); margin-bottom: 0.8rem;
+}
+.modal-box p { font-size: 0.88rem; color: var(--gray); line-height: 1.7; margin-bottom: 2rem; }
+.modal-btns { display: flex; flex-direction: column; gap: 10px; }
+.modal-yes {
+  padding: 12px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--purple), var(--purple2));
+  color: var(--text); font-family: var(--font-body);
+  font-size: 0.9rem; font-weight: 600; border: none; cursor: pointer;
+  transition: all 0.2s;
+}
+.modal-yes:hover { transform: translateY(-1px); }
+.modal-no {
+  padding: 11px; border-radius: 8px;
+  background: transparent; color: var(--gray);
+  font-family: var(--font-body); font-size: 0.88rem; font-weight: 500;
+  border: 1.5px solid rgba(124,58,237,0.2); cursor: pointer;
+  transition: all 0.2s;
+}
+.modal-no:hover { border-color: #374151; color: var(--text); }
+{% endblock %}
+
+{% block content %}
+<div class="assess-page">
+  <div class="assess-grid"></div>
+
+  <!-- PROGRESS -->
+  <div class="prog-section">
+    <div class="prog-top">
+      <span class="prog-label">ASD Screening Assessment</span>
+      <span class="prog-frac" id="progFrac">1 / {{ questions|length }}</span>
+    </div>
+    <div class="prog-dots" id="progDots">
+      {% for q in questions %}
+      <div class="prog-dot {% if loop.first %}current{% endif %}" id="dot-{{ loop.index0 }}"></div>
+      {% endfor %}
+    </div>
+    <div class="prog-bar-track">
+      <div class="prog-bar-fill" id="progBar" style="width:10%"></div>
+    </div>
+  </div>
+
+  <div class="assess-main">
+    <form method="POST" id="qForm">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+      <div class="q-card">
+        <div class="q-card-top">
+          <div class="q-card-inner">
+            <!-- QUESTIONS -->
+            {% for q in questions %}
+            <div class="q-slide {% if loop.first %}active{% endif %}" data-i="{{ loop.index0 }}">
+              <div class="q-header">
+                <span class="q-num-badge">Question {{ loop.index }} of {{ questions|length }}</span>
+                <div class="q-line"></div>
+              </div>
+              <p class="q-text">{{ q }}</p>
+              <div class="options">
+                <div class="opt" data-val="yes">
+                  <div class="opt-radio"><div class="opt-dot"></div></div>
+                  <div class="opt-content">
+                    <div class="opt-title">Yes — this applies</div>
+                    <div class="opt-sub">This behaviour or trait applies to me or the person being assessed</div>
+                  </div>
+                  <span class="opt-tag">ASD Indicator</span>
+                </div>
+                <div class="opt" data-val="no">
+                  <div class="opt-radio"><div class="opt-dot"></div></div>
+                  <div class="opt-content">
+                    <div class="opt-title">No — this does not apply</div>
+                    <div class="opt-sub">This behaviour or trait is not present</div>
+                  </div>
+                  <span class="opt-tag">Not Present</span>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- EXTRA FIELDS -->
+        <div class="q-extras" id="extras">
+          <div class="extras-label">Additional Clinical Context</div>
+          <div class="extras-grid">
+            <div class="extra-field">
+              <label>Ethnicity</label>
+              <select name="ethnicity">
+                <option value="Others">Select (optional)</option>
+                <option value="White-European">White-European</option>
+                <option value="South Asian">South Asian</option>
+                <option value="Asian">Asian</option>
+                <option value="Black">Black</option>
+                <option value="Latino">Latino</option>
+                <option value="Middle Eastern">Middle Eastern</option>
+                <option value="Pasifika">Pasifika</option>
+                <option value="Turkish">Turkish</option>
+                <option value="Others">Others</option>
+              </select>
+            </div>
+            <div class="extra-field">
+              <label>Country of Residence</label>
+              <select name="contry_of_res">
+                <option value="India">India</option>
+                <option value="United States">United States</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="Australia">Australia</option>
+                <option value="Canada">Canada</option>
+                <option value="New Zealand">New Zealand</option>
+                <option value="Jordan">Jordan</option>
+                <option value="Brazil">Brazil</option>
+                <option value="Others">Others</option>
+              </select>
+            </div>
+            <div class="extra-field">
+              <label>Relation to Patient</label>
+              <select name="relation">
+                <option value="Self">Self</option>
+                <option value="Parent">Parent</option>
+                <option value="Relative">Relative</option>
+                <option value="Health care professional">Health care professional</option>
+                <option value="Others">Others</option>
+              </select>
+            </div>
+            <div class="extra-field">
+              <label>Used App Before?</label>
+              <div class="radio-row">
+                <label class="radio-opt"><input type="radio" name="used_app_before" value="yes" /> Yes</label>
+                <label class="radio-opt"><input type="radio" name="used_app_before" value="no" checked /> No</label>
+              </div>
+            </div>
+            <div class="extra-field">
+              <label>Jaundice at Birth?</label>
+              <div class="radio-row">
+                <label class="radio-opt"><input type="radio" name="jundice" value="1" /> Yes</label>
+                <label class="radio-opt"><input type="radio" name="jundice" value="0" checked /> No</label>
+              </div>
+            </div>
+            <div class="extra-field">
+              <label>Family History of ASD?</label>
+              <div class="radio-row">
+                <label class="radio-opt"><input type="radio" name="family_asd" value="1" /> Yes</label>
+                <label class="radio-opt"><input type="radio" name="family_asd" value="0" checked /> No</label>
+              </div>
+            </div>
+            <div class="extra-field" style="grid-column: 1 / -1;">
+              <label>Additional Notes (optional)</label>
+              <textarea name="additional_info" rows="2" placeholder="Any relevant context or observations…"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="q-card-footer">
+          <button type="button" class="btn-back" id="prevBtn" disabled>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            Previous
+          </button>
+          <button type="button" class="btn-next" id="nextBtn">
+            Next Question
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        <p class="q-hint">🔒 All responses are strictly confidential and used only for your screening result.</p>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-bg" id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-icon">🎯</div>
+    <h3>Submit Assessment?</h3>
+    <p>You've answered all 10 questions. Your results will be calculated immediately using the ML model. This cannot be undone.</p>
+    <div class="modal-btns">
+      <button class="modal-yes" id="confirmYes">
+        Submit & Get My Results →
+      </button>
+      <button class="modal-no" id="confirmNo">Review Answers</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const slides  = Array.from(document.querySelectorAll('.q-slide'));
+const total   = slides.length;
+const progBar = document.getElementById('progBar');
+const progFrac= document.getElementById('progFrac');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const modal   = document.getElementById('confirmModal');
+const extras  = document.getElementById('extras');
+let cur = 0;
+
+// Bind option clicks
+slides.forEach((slide, idx) => {
+  slide.querySelectorAll('.opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      slide.querySelectorAll('.opt').forEach(o => o.classList.remove('sel-yes','sel-no'));
+      opt.classList.add(opt.dataset.val === 'yes' ? 'sel-yes' : 'sel-no');
+      const old = slide.querySelector('input[data-q]');
+      if (old) old.remove();
+      const inp = document.createElement('input');
+      inp.type = 'hidden'; inp.name = 'Q' + (idx + 1);
+      inp.value = opt.dataset.val; inp.setAttribute('data-q', idx + 1);
+      slide.appendChild(inp);
+      // Update dot
+      document.getElementById('dot-' + idx).classList.add('answered');
+    });
+  });
+});
+
+function goTo(n) {
+  slides.forEach((s, i) => {
+    s.classList.toggle('active', i === n);
+  });
+  cur = n;
+  const pct = Math.round((n + 1) / total * 100);
+  progBar.style.width = pct + '%';
+  progFrac.textContent = (n + 1) + ' / ' + total;
+  prevBtn.disabled = n === 0;
+
+  // Update dots
+  document.querySelectorAll('.prog-dot').forEach((dot, i) => {
+    dot.classList.remove('current');
+    if (i === n) dot.classList.add('current');
+  });
+
+  if (n === total - 1) {
+    nextBtn.textContent = ''; nextBtn.className = 'btn-next submit';
+    nextBtn.innerHTML = 'Submit Assessment <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+    extras.classList.add('show');
+  } else {
+    nextBtn.className = 'btn-next';
+    nextBtn.innerHTML = 'Next Question <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+    extras.classList.remove('show');
+  }
+}
+
+nextBtn.addEventListener('click', () => {
+  if (!slides[cur].querySelector('input[data-q]')) {
+    slides[cur].animate(
+      [{transform:'translateX(0)'},{transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'translateX(0)'}],
+      {duration:300, easing:'ease-in-out'}
+    ); return;
+  }
+  if (cur < total - 1) goTo(cur + 1);
+  else modal.classList.add('open');
+});
+
+prevBtn.addEventListener('click', () => { if (cur > 0) goTo(cur - 1); });
+document.getElementById('confirmYes').addEventListener('click', () => {
+  modal.classList.remove('open');
+  document.getElementById('qForm').submit();
+});
+document.getElementById('confirmNo').addEventListener('click', () => modal.classList.remove('open'));
+window.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+
+goTo(0);
+</script>
+{% endblock %}

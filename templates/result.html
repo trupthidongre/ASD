@@ -1,0 +1,416 @@
+{% extends "base.html" %}
+{% block title %}Assessment Result — ASD Predictor{% endblock %}
+
+{% block extra_css %}
+.result-page { min-height: calc(100vh - 66px - 80px); background: var(--bg2); }
+
+/* HERO RESULT BAND */
+.result-hero {
+  background: linear-gradient(135deg, #fff, var(--lav4));
+  border-bottom: 1px solid rgba(124,58,237,0.15);
+  padding: 3rem 4rem;
+  position: relative; overflow: hidden;
+}
+.result-hero::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--purple), var(--purple), var(--lavender));
+}
+.result-hero-inner { max-width: 1100px; margin: 0 auto; }
+.result-hero-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem;
+}
+.result-hero-left h1 {
+  font-family: var(--font-display);
+  font-size: 2.2rem; font-weight: 600; color: var(--text); margin-bottom: 0.4rem;
+}
+.result-meta { font-size: 0.84rem; color: var(--gray); display: flex; gap: 1rem; flex-wrap: wrap; }
+.result-meta span { display: flex; align-items: center; gap: 5px; }
+
+.result-ml-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+}
+.result-ml-badge.ml {
+  background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); color: var(--purple);
+}
+.result-ml-badge.fallback {
+  background: rgba(245,158,11,0.08); border: 1px solid rgba(250,204,21,0.25); color: #d97706;
+}
+
+/* SCORE CARDS ROW */
+.result-scores {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+}
+.score-card {
+  background: rgba(245,243,255,0.7);
+  border: 1px solid rgba(124,58,237,0.12);
+  border-radius: 14px; padding: 1.2rem 1.4rem;
+  text-align: center; transition: all 0.3s;
+}
+.score-card:hover { border-color: rgba(124,58,237,0.25); }
+.score-card-label { font-size: 0.72rem; color: var(--text2); font-weight: 700; letter-spacing: 0.5px; margin-bottom: 0.5rem; text-transform: uppercase; }
+.score-card-num {
+  font-family: var(--font-display); font-size: 2.4rem; font-weight: 700; line-height: 1;
+  margin-bottom: 0.3rem;
+}
+.score-card-num.teal { color: var(--purple); }
+.score-card-num.gold { color: var(--lavender); }
+.score-card-num.red  { color: var(--red); }
+.score-card-num.green { color: var(--green); }
+.score-card-sub { font-size: 0.78rem; color: var(--gray); }
+
+/* RISK BADGE */
+.risk-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: 10px;
+  font-size: 1rem; font-weight: 700;
+  width: 100%; justify-content: center;
+}
+.risk-low  { background: rgba(16,185,129,0.08); border: 1px solid rgba(74,222,128,0.25); color: var(--green); }
+.risk-mod  { background: rgba(245,158,11,0.08);  border: 1px solid rgba(250,204,21,0.25);  color: #d97706; }
+.risk-high { background: rgba(239,68,68,0.06); border: 1px solid rgba(248,113,113,0.25); color: var(--red); }
+
+/* MAIN CONTENT */
+.result-body { max-width: 1100px; margin: 0 auto; padding: 2.5rem 4rem; }
+.result-grid { display: grid; grid-template-columns: 1fr 360px; gap: 2rem; }
+
+/* SECTIONS */
+.result-section {
+  background: #fff;
+  border: 1.5px solid rgba(124,58,237,0.15);
+  border-radius: 16px; padding: 1.8rem;
+  margin-bottom: 1.5rem;
+}
+.result-section-title {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text2);
+  margin-bottom: 1.2rem; padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(124,58,237,0.12);
+}
+
+/* PATIENT TABLE */
+.patient-table { width: 100%; border-collapse: collapse; }
+.patient-table tr { border-bottom: 1px solid rgba(124,58,237,0.08); }
+.patient-table tr:last-child { border-bottom: none; }
+.patient-table td { padding: 9px 0; font-size: 0.86rem; }
+.patient-table td:first-child { color: var(--gray); width: 40%; }
+.patient-table td:last-child { color: var(--text); font-weight: 500; }
+
+/* RESPONSES GRID */
+.response-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.response-pill {
+  background: var(--lav4);
+  border-radius: 10px; padding: 10px 6px;
+  text-align: center;
+  font-size: 0.72rem; color: var(--gray);
+  border: 1px solid rgba(124,58,237,0.12);
+}
+.response-pill.yes {
+  background: rgba(124,58,237,0.1); border-color: rgba(124,58,237,0.25); color: var(--purple);
+}
+.response-pill.no {
+  background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); color: var(--gray);
+}
+.response-pill-q { font-size: 0.85rem; font-weight: 700; display: block; color: var(--text); margin-bottom: 3px; }
+.response-pill.yes .response-pill-q { color: var(--purple); }
+
+/* PROBABILITY BARS */
+.prob-bar-section { margin-top: 0.5rem; }
+.prob-bar-row { margin-bottom: 12px; }
+.prob-bar-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--gray); margin-bottom: 6px; }
+.prob-bar-track { height: 10px; background: var(--lav3); border-radius: 100px; overflow: hidden; }
+.prob-bar-fill { height: 100%; border-radius: 100px; transition: width 1.5s cubic-bezier(.22,1,.36,1); }
+.bar-asd { background: linear-gradient(90deg, #c0392b, #f87171); }
+.bar-no  { background: linear-gradient(90deg, var(--purple), var(--purple)); }
+
+/* CHARTS */
+.chart-img {
+  width: 100%; border-radius: 10px;
+  border: 1px solid rgba(124,58,237,0.1);
+  margin-bottom: 12px;
+}
+
+/* RISK SCALE */
+.risk-scale { display: flex; flex-direction: column; gap: 10px; }
+.risk-scale-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 10px;
+  font-size: 0.84rem; border: 1.5px solid rgba(124,58,237,0.12);
+  background: var(--lav4);
+  transition: all 0.2s;
+}
+.risk-scale-item.current-risk { border-width: 2px; transform: translateX(4px); }
+.risk-scale-item.low  { }
+.risk-scale-item.mod  { }
+.risk-scale-item.high { }
+.risk-scale-item.current-risk.low  { border-color: rgba(16,185,129,0.4); background: rgba(74,222,128,0.06); }
+.risk-scale-item.current-risk.mod  { border-color: rgba(245,158,11,0.4); background: rgba(250,204,21,0.06); }
+.risk-scale-item.current-risk.high { border-color: rgba(239,68,68,0.4); background: rgba(248,113,113,0.06); }
+.risk-scale-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.risk-scale-dot.low  { background: #4ade80; }
+.risk-scale-dot.mod  { background: #facc15; }
+.risk-scale-dot.high { background: #f87171; }
+.risk-scale-label { flex: 1; font-weight: 600; color: var(--text); }
+.risk-scale-range { font-size: 0.75rem; color: var(--gray); }
+.risk-scale-you { font-size: 0.72rem; color: var(--purple); font-weight: 600; margin-left: auto; }
+
+/* RECOMMENDATION */
+.rec-box {
+  padding: 1.2rem; border-radius: 12px;
+  font-size: 0.88rem; line-height: 1.8;
+}
+.rec-box.low  { background: rgba(74,222,128,0.07); border: 1px solid rgba(74,222,128,0.2); }
+.rec-box.mod  { background: rgba(250,204,21,0.07); border: 1px solid rgba(250,204,21,0.2); }
+.rec-box.high { background: rgba(248,113,113,0.07); border: 1px solid rgba(248,113,113,0.2); }
+.rec-box strong { display: block; font-size: 0.95rem; margin-bottom: 0.5rem; }
+
+/* ACTION BTNS */
+.action-btns { display: flex; flex-direction: column; gap: 10px; }
+.btn-download {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--purple), var(--purple2));
+  color: var(--text); text-decoration: none;
+  font-size: 0.88rem; font-weight: 600;
+  transition: all 0.25s;
+  box-shadow: 0 4px 15px rgba(124,58,237,0.3);
+}
+.btn-download:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,58,237,0.45); }
+.btn-feedback {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 11px; border-radius: 8px;
+  background: transparent; color: var(--gray); text-decoration: none;
+  font-size: 0.88rem; font-weight: 500;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: all 0.25s;
+}
+.btn-feedback:hover { border-color: #374151; color: var(--text); }
+.btn-retake {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 11px; border-radius: 8px;
+  background: transparent; color: var(--purple); text-decoration: none;
+  font-size: 0.88rem; font-weight: 500;
+  border: 1.5px solid rgba(124,58,237,0.2);
+  transition: all 0.25s;
+}
+.btn-retake:hover { background: var(--lav3); }
+
+.disclaimer-box {
+  margin-top: 1rem; padding: 12px 14px;
+  background: var(--lav4);
+  border: 1px solid rgba(124,58,237,0.12);
+  border-radius: 10px; font-size: 0.76rem; color: var(--gray); line-height: 1.6;
+}
+
+@media(max-width: 900px) {
+  .result-hero, .result-body { padding: 2rem 1.5rem; }
+  .result-grid { grid-template-columns: 1fr; }
+  .result-scores { grid-template-columns: 1fr 1fr; }
+  .response-grid { grid-template-columns: repeat(5, 1fr); }
+}
+@media(max-width: 600px) {
+  .result-scores { grid-template-columns: 1fr 1fr; }
+  .response-grid { grid-template-columns: repeat(5, 1fr); }
+}
+{% endblock %}
+
+{% block content %}
+{% set r = result %}
+<div class="result-page">
+
+  <!-- HERO BAND -->
+  <div class="result-hero">
+    <div class="result-hero-inner">
+      <div class="result-hero-top">
+        <div class="result-hero-left">
+          <h1>Assessment Complete</h1>
+          <div class="result-meta">
+            <span>🧩 {{ r.name }}</span>
+            <span>📅 {{ r.timestamp }}</span>
+            <span>👤 Age Group: {{ r.age_group | title }}</span>
+          </div>
+        </div>
+        <div class="result-ml-badge {% if r.get('ml_used') %}ml{% else %}fallback{% endif %}">
+          {% if r.get('ml_used') %}🤖 RandomForest ML Model{% else %}⚠️ Rule-based Fallback{% endif %}
+        </div>
+      </div>
+
+      <!-- SCORE CARDS -->
+      <div class="result-scores">
+        <div class="score-card">
+          <div class="score-card-label">ASD Score</div>
+          <div class="score-card-num teal">{{ r.total_score }}</div>
+          <div class="score-card-sub">out of 10</div>
+        </div>
+        <div class="score-card">
+          <div class="score-card-label">{% if r.get('ml_used') %}ASD Probability{% else %}Score %{% endif %}</div>
+          <div class="score-card-num {% if r.get('ml_used') and r.get('probability', 0)|float > 60 %}red{% elif r.get('ml_used') %}gold{% else %}gold{% endif %}">
+            {{ r.percentage }}%
+          </div>
+          <div class="score-card-sub">confidence</div>
+        </div>
+        <div class="score-card">
+          <div class="score-card-label">Yes Responses</div>
+          <div class="score-card-num red">{{ r.total_score }}</div>
+          <div class="score-card-sub">ASD indicators</div>
+        </div>
+        <div class="score-card">
+          <div class="score-card-label">Risk Level</div>
+          <div class="risk-badge
+            {% if 'Low' in r.risk_level %}risk-low
+            {% elif 'Moderate' in r.risk_level %}risk-mod
+            {% else %}risk-high{% endif %}">
+            {% if 'Low' in r.risk_level %}🟢{% elif 'Moderate' in r.risk_level %}🟡{% else %}🔴{% endif %}
+            {{ r.risk_level }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="result-body">
+    <div class="result-grid">
+
+      <!-- LEFT COLUMN -->
+      <div class="result-left">
+
+        <!-- PATIENT INFO -->
+        <div class="result-section">
+          <div class="result-section-title">Patient Information</div>
+          <table class="patient-table">
+            <tr><td>Full Name</td><td>{{ r.name }}</td></tr>
+            <tr><td>Date of Birth</td><td>{{ r.dob }}</td></tr>
+            <tr><td>Gender</td><td>{{ r.gender }}</td></tr>
+            <tr><td>Age Group</td><td>{{ r.age_group | title }}</td></tr>
+            <tr><td>Email</td><td>{{ r.email }}</td></tr>
+            <tr><td>Date & Time</td><td>{{ r.timestamp }}</td></tr>
+          </table>
+        </div>
+
+        <!-- ML PROBABILITY BARS -->
+        {% if r.get('ml_used') %}
+        <div class="result-section">
+          <div class="result-section-title">AI Probability Analysis</div>
+          <div class="prob-bar-section">
+            {% set asd_prob = r.get('probability', r.percentage) | float %}
+            {% set no_prob = (100 - asd_prob) | round(1) %}
+            <div class="prob-bar-row">
+              <div class="prob-bar-header"><span>🔴 ASD Positive Probability</span><span>{{ asd_prob }}%</span></div>
+              <div class="prob-bar-track"><div class="prob-bar-fill bar-asd" data-width="{{ asd_prob }}" style="width:0%"></div></div>
+            </div>
+            <div class="prob-bar-row">
+              <div class="prob-bar-header"><span>🟢 No ASD Probability</span><span>{{ no_prob }}%</span></div>
+              <div class="prob-bar-track"><div class="prob-bar-fill bar-no" data-width="{{ no_prob }}" style="width:0%"></div></div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- RESPONSES -->
+        <div class="result-section">
+          <div class="result-section-title">Response Overview</div>
+          <div class="response-grid">
+            {% for ans in r.answers %}
+            <div class="response-pill {% if ans == 'yes' %}yes{% else %}no{% endif %}">
+              <span class="response-pill-q">Q{{ loop.index }}</span>
+              {{ 'Yes' if ans == 'yes' else 'No' }}
+            </div>
+            {% endfor %}
+          </div>
+          <div style="display:flex;gap:16px;margin-top:1rem;font-size:0.75rem;color:var(--gray);">
+            <span>🟦 Yes = ASD indicator present</span>
+            <span>⬜ No = Not present</span>
+          </div>
+        </div>
+
+        <!-- CHARTS -->
+        <div class="result-section">
+          <div class="result-section-title">Visualisation</div>
+          {% if r.pie_chart %}
+          <img src="{{ url_for('static', filename=r.pie_chart) }}" alt="Response Distribution" class="chart-img" />
+          {% endif %}
+          {% if r.bar_chart %}
+          <img src="{{ url_for('static', filename=r.bar_chart) }}" alt="Score vs Maximum" class="chart-img" />
+          {% endif %}
+        </div>
+
+        <!-- RECOMMENDATION -->
+        <div class="result-section">
+          <div class="result-section-title">Clinical Recommendation</div>
+          <div class="rec-box
+            {% if 'Low' in r.risk_level %}low
+            {% elif 'Moderate' in r.risk_level %}mod
+            {% else %}high{% endif %}">
+            <strong>{{ r.risk_level }}</strong>
+            {{ r.recommendation }}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="result-right">
+
+        <!-- RISK SCALE -->
+        <div class="result-section">
+          <div class="result-section-title">Risk Scale Reference</div>
+          <div class="risk-scale">
+            <div class="risk-scale-item low {% if 'Low' in r.risk_level %}current-risk{% endif %}">
+              <div class="risk-scale-dot low"></div>
+              <span class="risk-scale-label">🟢 Low Risk</span>
+              <span class="risk-scale-range">Score 0–3</span>
+              {% if 'Low' in r.risk_level %}<span class="risk-scale-you">← Your Result</span>{% endif %}
+            </div>
+            <div class="risk-scale-item mod {% if 'Moderate' in r.risk_level %}current-risk{% endif %}">
+              <div class="risk-scale-dot mod"></div>
+              <span class="risk-scale-label">🟡 Moderate</span>
+              <span class="risk-scale-range">Score 4–6</span>
+              {% if 'Moderate' in r.risk_level %}<span class="risk-scale-you">← Your Result</span>{% endif %}
+            </div>
+            <div class="risk-scale-item high {% if 'High' in r.risk_level %}current-risk{% endif %}">
+              <div class="risk-scale-dot high"></div>
+              <span class="risk-scale-label">🔴 High Risk</span>
+              <span class="risk-scale-range">Score 7–10</span>
+              {% if 'High' in r.risk_level %}<span class="risk-scale-you">← Your Result</span>{% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="result-section">
+          <div class="result-section-title">Actions</div>
+          <div class="action-btns">
+            <a href="{{ url_for('download_report') }}" class="btn-download">
+              📥 Download PDF Report
+            </a>
+            <a href="{{ url_for('feedback') }}" class="btn-feedback">
+              💬 Share Feedback
+            </a>
+            <a href="{{ url_for('questions') }}" class="btn-retake">
+              🔄 Retake Assessment
+            </a>
+          </div>
+          <div class="disclaimer-box" style="margin-top:1.2rem;">
+            ⚠️ This screening tool is for informational purposes only and does not constitute a clinical diagnosis. Please consult a qualified healthcare professional for a formal evaluation.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Animate probability bars
+window.addEventListener('load', () => {
+  document.querySelectorAll('.prob-bar-fill').forEach(bar => {
+    const w = bar.dataset.width;
+    setTimeout(() => { bar.style.width = w + '%'; }, 400);
+  });
+});
+</script>
+{% endblock %}

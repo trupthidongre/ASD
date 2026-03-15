@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}ASD Predictor | Clinical Screening{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:      #faf8ff;
+      --bg2:     #f3effd;
+      --bg3:     #ede8fb;
+      --white:   #ffffff;
+      --purple:  #7c3aed;
+      --purple2: #6d28d9;
+      --lavender:#a78bfa;
+      --lav2:    #c4b5fd;
+      --lav3:    #ede9fe;
+      --lav4:    #f5f3ff;
+      --pink:    #ec4899;
+      --pink2:   #f9a8d4;
+      --text:    #1e1b4b;
+      --text2:   #3730a3;
+      --gray:    #6b7280;
+      --gray2:   #9ca3af;
+      --border:  rgba(167,139,250,0.25);
+      --border2: rgba(124,58,237,0.15);
+      --red:     #ef4444;
+      --green:   #10b981;
+      --shadow:  0 4px 24px rgba(124,58,237,0.08);
+      --shadow2: 0 8px 40px rgba(124,58,237,0.14);
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body:    'Outfit', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--lavender); border-radius: 3px; }
+
+    /* ── NAV ── */
+    .ns-nav {
+      position: sticky; top: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 3rem; height: 66px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 12px rgba(124,58,237,0.06);
+    }
+    .ns-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .ns-logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--purple), var(--lavender));
+      border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px;
+    }
+    .ns-logo-text { font-family: var(--font-display); font-size: 1.4rem; font-weight: 600; color: var(--text); }
+    .ns-logo-text span { color: var(--purple); }
+    .ns-nav-right { display: flex; align-items: center; gap: 20px; }
+    .ns-user-chip {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--lav3); border: 1px solid var(--border);
+      border-radius: 100px; padding: 5px 14px 5px 8px;
+    }
+    .ns-user-avatar {
+      width: 26px; height: 26px;
+      background: linear-gradient(135deg, var(--purple), var(--lavender));
+      border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;
+    }
+    .ns-user-name { font-size: 0.82rem; font-weight: 500; color: var(--text2); }
+    .ns-nav-link { color: var(--gray); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.2s; }
+    .ns-nav-link:hover { color: var(--purple); }
+    .ns-btn-logout {
+      display: flex; align-items: center; gap: 6px;
+      background: transparent; border: 1px solid rgba(239,68,68,0.3);
+      color: var(--red); font-size: 0.82rem; font-weight: 500;
+      padding: 6px 14px; border-radius: 6px; cursor: pointer;
+      text-decoration: none; transition: all 0.2s; font-family: var(--font-body);
+    }
+    .ns-btn-logout:hover { background: rgba(239,68,68,0.06); border-color: var(--red); }
+    .ns-btn-signin {
+      color: var(--purple); text-decoration: none; font-size: 0.85rem; font-weight: 600;
+      border: 1px solid var(--border); padding: 7px 18px; border-radius: 6px; transition: all 0.2s;
+    }
+    .ns-btn-signin:hover { background: var(--lav3); }
+    .ns-btn-cta {
+      background: linear-gradient(135deg, var(--purple), var(--purple2));
+      color: #1e1b4b; text-decoration: none; font-size: 0.85rem; font-weight: 600;
+      padding: 8px 20px; border-radius: 6px;
+      box-shadow: 0 4px 14px rgba(124,58,237,0.3); transition: all 0.2s;
+    }
+    .ns-btn-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,58,237,0.42); }
+
+    /* ── FLASH ── */
+    .ns-flash-wrap { position: fixed; top: 76px; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 10px; min-width: 320px; max-width: 420px; }
+    .ns-flash { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-radius: 10px; border: 1px solid; backdrop-filter: blur(20px); animation: slideInRight 0.4s ease; background: #fff; }
+    .ns-flash.success { border-color: rgba(16,185,129,0.35); color: #059669; }
+    .ns-flash.danger  { border-color: rgba(239,68,68,0.35);  color: var(--red); }
+    .ns-flash.warning { border-color: rgba(245,158,11,0.35); color: #d97706; }
+    .ns-flash.info    { border-color: var(--border);          color: var(--purple); }
+    .ns-flash-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .ns-flash-body { flex: 1; font-size: 0.85rem; line-height: 1.5; }
+    .ns-flash-close { background: none; border: none; cursor: pointer; color: inherit; opacity: 0.5; font-size: 1.1rem; line-height: 1; transition: opacity 0.2s; }
+    .ns-flash-close:hover { opacity: 1; }
+    @keyframes slideInRight { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+
+    /* ── FOOTER ── */
+    .ns-footer {
+      background: #f3effd;
+      border-top: 1.5px solid rgba(124,58,237,0.15);
+      padding: 2rem 3rem;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    }
+    .ns-footer p { font-size: 0.8rem; color: #1e1b4b; }
+    .ns-footer-disclaimer { font-size: 0.72rem; color: #374151; max-width: 500px; text-align: right; }
+
+    {% block extra_css %}{% endblock %}
+  </style>
+</head>
+<body>
+<nav class="ns-nav">
+  <a href="{{ url_for('home') }}" class="ns-logo">
+    <div class="ns-logo-icon">🧩</div>
+    <span class="ns-logo-text">ASD <span>Predictor</span></span>
+  </a>
+  <div class="ns-nav-right">
+    {% if session.get('user_email') %}
+      <a href="{{ url_for('questions') }}" class="ns-nav-link">Assessment</a>
+      <a href="{{ url_for('feedback') }}" class="ns-nav-link">Feedback</a>
+      <div class="ns-user-chip">
+        <div class="ns-user-avatar">👤</div>
+        <span class="ns-user-name">{{ session.get('user_name','User') }}</span>
+      </div>
+      <a href="{{ url_for('logout') }}" class="ns-btn-logout">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        Logout
+      </a>
+    {% else %}
+      <a href="{{ url_for('home') }}" class="ns-nav-link">Home</a>
+      <a href="{{ url_for('login') }}" class="ns-btn-signin">Sign In</a>
+      <a href="{{ url_for('register') }}" class="ns-btn-cta">Get Started</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="ns-flash-wrap">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="ns-flash {{ category }}">
+      <span class="ns-flash-icon">{% if category=='success' %}✅{% elif category=='danger' %}❌{% elif category=='warning' %}⚠️{% else %}ℹ️{% endif %}</span>
+      <span class="ns-flash-body">{{ message }}</span>
+      <button class="ns-flash-close" onclick="this.closest('.ns-flash').remove()">✕</button>
+    </div>
+    {% endfor %}
+  {% endwith %}
+</div>
+
+{% block content %}{% endblock %}
+
+<footer class="ns-footer">
+  <p>© 2026 ASD Predictor — Designed with care 💜</p>
+  <p class="ns-footer-disclaimer">⚠️ For informational purposes only. Not a clinical diagnosis. Consult a qualified healthcare professional.</p>
+</footer>
+<script>
+  document.querySelectorAll('.ns-flash').forEach(el => {
+    setTimeout(() => { el.style.opacity='0'; el.style.transition='opacity 0.4s'; setTimeout(()=>el.remove(),400); }, 5000);
+  });
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

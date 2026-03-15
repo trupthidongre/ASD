@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ASD Predictor | ASD Predictor Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #faf8ff;
+      --bg2:     #f3effd;
+      --bg3:     #ede8fb;
+      --purple:  #7c3aed;
+      --purple2: #6d28d9;
+      --lavender:#a78bfa;
+      --lav2:    #c4b5fd;
+      --lav3:    #ede9fe;
+      --white:   #ffffff;
+      --gray:    #6b7280;
+      --gray2:   #9ca3af;
+      --red:     #ef4444;
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body:    'Outfit', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--lavender); border-radius: 3px; }
+
+    /* ─── NAVBAR ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 4rem;
+      height: 72px;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(167,139,250,0.25);
+      transition: all 0.3s ease;
+    }
+    nav.scrolled {
+      height: 62px;
+      background: rgba(255,255,255,0.98);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 12px;
+      text-decoration: none;
+    }
+    .nav-logo-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--purple), var(--lavender));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .nav-logo-text {
+      font-family: var(--font-display);
+      font-size: 1.5rem; font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.5px;
+    }
+    .nav-logo-text span { color: var(--purple); }
+    .nav-links {
+      display: flex; align-items: center; gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--gray); text-decoration: none;
+      font-size: 0.875rem; font-weight: 500;
+      letter-spacing: 0.3px;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--purple); }
+    .nav-actions { display: flex; gap: 12px; align-items: center; }
+    .btn-nav-login {
+      color: var(--purple); text-decoration: none;
+      font-size: 0.875rem; font-weight: 500;
+      border: 1px solid rgba(124,58,237,0.25);
+      padding: 8px 20px; border-radius: 6px;
+      transition: all 0.2s;
+    }
+    .btn-nav-login:hover { background: var(--lav3); border-color: var(--purple); }
+    .btn-nav-cta {
+      background: linear-gradient(135deg, var(--purple), var(--purple2));
+      color: #1e1b4b; text-decoration: none;
+      font-size: 0.875rem; font-weight: 600;
+      padding: 9px 22px; border-radius: 6px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(124,58,237,0.28);
+    }
+    .btn-nav-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,58,237,0.4); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 8rem 4rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; pointer-events: none;
+    }
+    .hero-bg::before {
+      content: '';
+      position: absolute; top: -200px; right: -200px;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero-bg::after {
+      content: '';
+      position: absolute; bottom: -150px; left: -100px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(201,151,58,0.07) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero-grid-overlay {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(124,58,237,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.5) 70%, transparent 100%);
+    }
+
+    .hero-left { position: relative; z-index: 2; padding-right: 3rem; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(124,58,237,0.08);
+      border: 1px solid rgba(124,58,237,0.22);
+      color: var(--purple);
+      font-size: 0.75rem; font-weight: 600;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 7px 16px; border-radius: 100px;
+      margin-bottom: 2rem;
+      animation: fadeSlideUp 0.8s ease both;
+    }
+    .hero-badge::before {
+      content: ''; width: 6px; height: 6px;
+      background: var(--purple); border-radius: 50%;
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 5vw, 4.5rem);
+      font-weight: 600; line-height: 1.1;
+      margin-bottom: 1.5rem;
+      animation: fadeSlideUp 0.8s 0.1s ease both;
+    }
+    .hero-title em { font-style: italic; color: var(--purple); }
+    .hero-title .gold { color: var(--lavender); }
+
+    .hero-desc {
+      font-size: 1.05rem; line-height: 1.8;
+      color: #374151;
+      max-width: 500px;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+      animation: fadeSlideUp 0.8s 0.2s ease both;
+    }
+
+    .hero-actions {
+      display: flex; gap: 16px; align-items: center;
+      margin-bottom: 3rem;
+      animation: fadeSlideUp 0.8s 0.3s ease both;
+    }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, var(--purple), var(--purple2));
+      color: #1e1b4b; text-decoration: none;
+      font-size: 0.95rem; font-weight: 600;
+      padding: 14px 32px; border-radius: 8px;
+      transition: all 0.25s;
+      box-shadow: 0 8px 25px rgba(124,58,237,0.28);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(124,58,237,0.42); }
+    .btn-primary svg { transition: transform 0.2s; }
+    .btn-primary:hover svg { transform: translateX(4px); }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 10px;
+      color: var(--gray); text-decoration: none;
+      font-size: 0.9rem; font-weight: 500;
+      padding: 14px 24px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.25s;
+    }
+    .btn-ghost:hover { color: var(--purple); border-color: rgba(124,58,237,0.35); background: var(--lav4); }
+
+    .hero-trust {
+      display: flex; gap: 2rem;
+      animation: fadeSlideUp 0.8s 0.4s ease both;
+    }
+    .trust-item { display: flex; align-items: center; gap: 8px; }
+    .trust-icon {
+      width: 32px; height: 32px;
+      background: var(--lav3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+    .trust-text { font-size: 0.8rem; color: var(--gray); line-height: 1.3; }
+    .trust-text strong { display: block; color: var(--text); font-weight: 600; }
+
+    /* ─── HERO RIGHT — Clinical Visual ─── */
+    .hero-right {
+      position: relative; z-index: 2;
+      display: flex; align-items: center; justify-content: center;
+      animation: fadeSlideLeft 1s 0.3s ease both;
+    }
+    .clinical-card {
+      width: 100%; max-width: 480px;
+      background: linear-gradient(145deg, #fff, var(--lav4));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      backdrop-filter: blur(20px);
+      box-shadow: var(--shadow2);
+      position: relative;
+      overflow: hidden;
+    }
+    .clinical-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--purple), var(--lavender), var(--pink2));
+    }
+    .card-header-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .card-logo-area { display: flex; align-items: center; gap: 10px; }
+    .card-logo-dot {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--purple), var(--lavender));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+    }
+    .card-title-sm {
+      font-family: var(--font-display);
+      font-size: 1rem; font-weight: 600; color: var(--text);
+    }
+    .card-status {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.72rem; color: var(--green); font-weight: 500;
+    }
+    .card-status::before {
+      content: ''; width: 7px; height: 7px;
+      background: var(--green); border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .brain-viz {
+      width: 100%; height: 160px;
+      background: var(--lav4);
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .brain-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      animation: ringExpand 4s ease infinite;
+    }
+    .ring1 { width: 80px; height: 80px; animation-delay: 0s; }
+    .ring2 { width: 120px; height: 120px; animation-delay: 0.8s; }
+    .ring3 { width: 160px; height: 160px; animation-delay: 1.6s; }
+    @keyframes ringExpand {
+      0% { opacity: 0.6; transform: scale(0.9); }
+      50% { opacity: 0.2; transform: scale(1.05); }
+      100% { opacity: 0.6; transform: scale(0.9); }
+    }
+    .brain-center {
+      position: relative; z-index: 2;
+      width: 54px; height: 54px;
+      background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(124,58,237,0.2));
+      border: 1px solid rgba(124,58,237,0.4);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+    }
+    .brain-dots {
+      position: absolute; inset: 0;
+    }
+    .brain-dot {
+      position: absolute;
+      width: 5px; height: 5px;
+      background: var(--lavender);
+      border-radius: 50%;
+      opacity: 0.6;
+      animation: dotBlink 2s ease infinite;
+    }
+    .bd1 { top: 25%; left: 20%; animation-delay: 0s; }
+    .bd2 { top: 15%; right: 22%; animation-delay: 0.4s; }
+    .bd3 { bottom: 25%; left: 25%; animation-delay: 0.8s; }
+    .bd4 { bottom: 18%; right: 20%; animation-delay: 1.2s; }
+    .bd5 { top: 50%; left: 10%; animation-delay: 1.6s; }
+    .bd6 { top: 40%; right: 12%; animation-delay: 2s; }
+    @keyframes dotBlink {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.6); }
+    }
+    .brain-line {
+      position: absolute;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent);
+      animation: lineScan 3s ease infinite;
+    }
+    .bl1 { width: 60%; top: 35%; left: 20%; animation-delay: 0s; }
+    .bl2 { width: 40%; top: 60%; left: 30%; animation-delay: 1s; }
+    @keyframes lineScan {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+
+    .score-row {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      gap: 8px; margin-bottom: 1.2rem;
+    }
+    .score-pill {
+      background: rgba(124,58,237,0.12);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 4px;
+      text-align: center;
+      font-size: 0.7rem; color: var(--gray);
+      transition: all 0.3s;
+    }
+    .score-pill.active {
+      background: var(--lav3);
+      border-color: var(--lavender);
+      color: var(--purple);
+    }
+    .score-pill.active2 {
+      background: rgba(236,72,153,0.08);
+      border-color: rgba(236,72,153,0.3);
+      color: var(--pink);
+    }
+    .score-pill-num { font-size: 1.1rem; font-weight: 700; display: block; color: var(--text); }
+    .score-pill.active .score-pill-num { color: var(--purple); }
+    .score-pill.active2 .score-pill-num { color: var(--pink); }
+
+    .result-preview {
+      background: rgba(245,243,255,0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .result-label { font-size: 0.78rem; color: var(--gray); margin-bottom: 3px; }
+    .result-value {
+      font-family: var(--font-display);
+      font-size: 1.6rem; font-weight: 600; color: var(--purple);
+    }
+    .result-badge {
+      background: rgba(124,58,237,0.15);
+      border: 1px solid rgba(124,58,237,0.3);
+      color: var(--purple);
+      font-size: 0.72rem; font-weight: 600;
+      padding: 6px 14px; border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+    .result-badge.high {
+      background: rgba(224,90,90,0.15);
+      border-color: rgba(224,90,90,0.3);
+      color: #f87171;
+    }
+    .result-badge.moderate {
+      background: rgba(234,179,8,0.15);
+      border-color: rgba(234,179,8,0.3);
+      color: #facc15;
+    }
+
+    /* ─── STATS BAR ─── */
+    .stats-bar {
+      background: var(--bg3);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 4rem;
+    }
+    .stats-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+    }
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 3rem; font-weight: 700;
+      color: var(--purple);
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .stat-num span { font-size: 1.8rem; }
+    .stat-label { font-size: 0.82rem; color: var(--gray); letter-spacing: 0.5px; font-weight: 400; }
+    .stat-divider {
+      width: 1px; background: rgba(124,58,237,0.15);
+      margin: 0 auto;
+    }
+
+    /* ─── SECTION COMMONS ─── */
+    section { padding: 6rem 4rem; }
+    .section-inner { max-width: 1200px; margin: 0 auto; }
+    .section-label {
+      display: inline-block;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--purple);
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 600; line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .section-title em { font-style: italic; color: var(--purple); }
+    .section-desc {
+      font-size: 1rem; color: var(--gray); line-height: 1.8;
+      font-weight: 300; max-width: 560px;
+    }
+
+    /* ─── ABOUT / WHAT IS ASD ─── */
+    .about-section { background: var(--bg2); }
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 5rem; align-items: center;
+    }
+    .about-right { position: relative; }
+    .about-cards { display: flex; flex-direction: column; gap: 16px; }
+    .about-card {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      display: flex; gap: 1.2rem; align-items: flex-start;
+      transition: all 0.3s;
+    }
+    .about-card:hover { border-color: var(--lavender); transform: translateX(6px); box-shadow: var(--shadow); }
+    .about-card-icon {
+      width: 44px; height: 44px; flex-shrink: 0;
+      background: var(--lav3);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+    .about-card-text h4 {
+      font-size: 0.95rem; font-weight: 600; color: var(--text);
+      margin-bottom: 0.4rem;
+    }
+    .about-card-text p { font-size: 0.83rem; color: var(--gray); line-height: 1.6; }
+
+    .about-left .section-desc { margin-bottom: 2rem; }
+    .about-pills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 1.5rem; }
+    .about-pill {
+      background: rgba(124,58,237,0.1);
+      border: 1px solid var(--border);
+      color: var(--purple); font-size: 0.8rem; font-weight: 500;
+      padding: 6px 14px; border-radius: 100px;
+    }
+
+    /* ─── HOW IT WORKS ─── */
+    .how-section { background: var(--bg); }
+    .how-header { text-align: center; margin-bottom: 4rem; }
+    .how-header .section-desc { margin: 0 auto; }
+    .how-steps {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 2rem; position: relative;
+    }
+    .how-steps::before {
+      content: '';
+      position: absolute;
+      top: 52px; left: calc(16.67% + 1rem); right: calc(16.67% + 1rem);
+      height: 1px;
+      background: linear-gradient(90deg, var(--lavender), transparent 30%, transparent 70%, var(--lavender));
+      border-top: 1px dashed rgba(124,58,237,0.2);
+    }
+    .how-step {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .how-step:hover { border-color: var(--lavender); transform: translateY(-6px); box-shadow: var(--shadow2); }
+    .how-step-num {
+      width: 56px; height: 56px;
+      background: var(--lav4);
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-family: var(--font-display);
+      font-size: 1.4rem; font-weight: 700; color: var(--purple);
+      position: relative; z-index: 1;
+    }
+    .how-step:hover .how-step-num { background: var(--lav3); border-color: var(--lavender); }
+    .how-step-icon { font-size: 2rem; margin-bottom: 1.2rem; }
+    .how-step h3 {
+      font-size: 1.15rem; font-weight: 600; color: var(--text);
+      margin-bottom: 0.7rem;
+    }
+    .how-step p { font-size: 0.85rem; color: var(--gray); line-height: 1.7; }
+    .how-step-tag {
+      display: inline-block; margin-top: 1.2rem;
+      background: rgba(124,58,237,0.1);
+      border: 1px solid var(--border);
+      color: var(--purple); font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.5px; padding: 5px 12px; border-radius: 100px;
+    }
+
+    /* ─── FEATURES ─── */
+    .features-section { background: var(--bg2); }
+    .features-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 4rem; align-items: center;
+    }
+    .features-left .section-desc { margin-bottom: 2rem; }
+    .feature-list { display: flex; flex-direction: column; gap: 16px; }
+    .feature-item {
+      display: flex; gap: 16px; align-items: flex-start;
+      padding: 1.2rem;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      transition: all 0.3s;
+      cursor: default;
+    }
+    .feature-item:hover {
+      background: var(--lav4);
+      border-color: var(--border);
+    }
+    .feature-icon {
+      width: 42px; height: 42px; flex-shrink: 0;
+      background: var(--lav3);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: var(--purple);
+    }
+    .feature-text h4 { font-size: 0.95rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .feature-text p { font-size: 0.82rem; color: var(--gray); line-height: 1.6; }
+
+    .features-right { display: flex; justify-content: center; }
+    .report-mockup {
+      width: 100%; max-width: 400px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+    }
+    .report-header {
+      background: linear-gradient(135deg, var(--purple), var(--purple2));
+      padding: 1.5rem 1.8rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .report-header-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem; font-weight: 600;
+    }
+    .report-header-badge {
+      background: rgba(255,255,255,0.25);
+      border-radius: 6px; padding: 4px 10px;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.5px;
+    }
+    .report-body { padding: 1.5rem 1.8rem; }
+    .report-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.83rem;
+    }
+    .report-row:last-child { border-bottom: none; }
+    .report-row-label { color: var(--gray); }
+    .report-row-val { color: var(--text); font-weight: 500; }
+    .report-row-val.teal { color: var(--purple); }
+    .report-row-val.gold { color: var(--lavender); }
+    .report-row-val.red { color: #f87171; }
+    .report-bar-section { margin-top: 1.2rem; }
+    .report-bar-label {
+      display: flex; justify-content: space-between;
+      font-size: 0.78rem; color: var(--gray); margin-bottom: 6px;
+    }
+    .report-bar-track {
+      height: 8px; background: var(--lav4);
+      border-radius: 100px; overflow: hidden; margin-bottom: 10px;
+    }
+    .report-bar-fill {
+      height: 100%; border-radius: 100px;
+      transition: width 1.5s ease;
+    }
+    .bar-asd { background: linear-gradient(90deg, #ef4444, #f87171); width: 72%; }
+    .bar-no  { background: linear-gradient(90deg, var(--purple), var(--lavender)); width: 28%; }
+    .report-footer-tag {
+      margin-top: 1.2rem; text-align: center;
+      font-size: 0.75rem; color: var(--gray);
+    }
+    .report-footer-tag span {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--lav3);
+      border: 1px solid var(--border);
+      padding: 6px 14px; border-radius: 100px;
+      color: var(--purple); font-weight: 600;
+    }
+
+    /* ─── RESEARCH / TESTIMONIALS ─── */
+    .research-section { background: var(--bg); }
+    .research-header { margin-bottom: 3rem; }
+    .research-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .research-card {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 16px; padding: 2rem;
+      transition: all 0.3s;
+    }
+    .research-card:hover { border-color: rgba(124,58,237,0.3); transform: translateY(-4px); }
+    .research-quote {
+      font-family: var(--font-display);
+      font-size: 3rem; color: rgba(124,58,237,0.2);
+      line-height: 1; margin-bottom: 0.8rem;
+    }
+    .research-text {
+      font-size: 0.88rem; color: var(--gray); line-height: 1.8;
+      font-style: italic; margin-bottom: 1.5rem;
+    }
+    .research-author { display: flex; align-items: center; gap: 12px; }
+    .research-avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple), var(--navy3));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .research-author-name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+    .research-author-title { font-size: 0.75rem; color: #6b7280; }
+    .research-stars { color: #f59e0b; font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 1rem; }
+
+    /* ─── FAQ ─── */
+    .faq-section { background: var(--bg2); }
+    .faq-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 4rem; align-items: start;
+    }
+    .faq-list { display: flex; flex-direction: column; gap: 12px; }
+    .faq-item {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+    .faq-item.open { border-color: var(--lavender); box-shadow: 0 4px 20px rgba(124,58,237,0.08); }
+    .faq-question {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.1rem 1.4rem;
+      cursor: pointer;
+      font-size: 0.9rem; font-weight: 600; color: var(--text);
+      user-select: none;
+    }
+    .faq-arrow {
+      width: 24px; height: 24px; flex-shrink: 0;
+      background: var(--lav3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: var(--purple);
+      transition: transform 0.3s;
+    }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); background: var(--lav3); }
+    .faq-answer {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s;
+      font-size: 0.87rem; color: #374151; line-height: 1.8;
+      border-top: 0px solid transparent;
+      transition: max-height 0.4s ease, padding 0.3s, border 0.3s;
+    }
+    .faq-item.open .faq-answer {
+      max-height: 300px; padding: 0.8rem 1.4rem 1.4rem;
+      color: #374151;
+      border-top: 1px solid rgba(124,58,237,0.08);
+    }
+
+    .faq-right { padding-top: 2rem; }
+    .faq-cta-box {
+      background: linear-gradient(135deg, var(--lav3), var(--lav4));
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      text-align: center;
+    }
+    .faq-cta-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .faq-cta-box h3 {
+      font-family: var(--font-display);
+      font-size: 1.8rem; font-weight: 600; color: var(--text);
+      margin-bottom: 0.8rem;
+    }
+    .faq-cta-box p { font-size: 0.88rem; color: var(--gray); line-height: 1.7; margin-bottom: 1.8rem; }
+
+
+    /* ─── AWARENESS SECTION ─── */
+    .awareness-section {
+      background: linear-gradient(135deg, #f8f5ff 0%, #ede8fb 40%, #f0eaff 100%);
+      padding: 6rem 4rem; position: relative; overflow: hidden;
+    }
+    .awareness-section::before {
+      content: ''; position: absolute; top: -120px; right: -100px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(167,139,250,0.18) 0%, transparent 70%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .awareness-section::after {
+      content: ''; position: absolute; bottom: -80px; left: -60px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(196,181,253,0.15) 0%, transparent 70%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .awareness-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+    .awareness-header { text-align: center; margin-bottom: 3.5rem; }
+    .awareness-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.25);
+      color: #7c3aed; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 7px 16px; border-radius: 100px; margin-bottom: 1.2rem;
+    }
+    .awareness-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 3.5vw, 2.8rem); font-weight: 600; line-height: 1.2;
+      color: #2d1b6e; margin-bottom: 0.8rem;
+    }
+    .awareness-title em { font-style: italic; color: #7c3aed; }
+    .awareness-subtitle { font-size: 1rem; color: #5b4a8a; line-height: 1.7; max-width: 560px; margin: 0 auto; }
+    .awareness-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2.5rem; }
+    .awareness-card {
+      background: #ffffff; border: 1px solid rgba(167,139,250,0.3);
+      border-radius: 20px; padding: 2.2rem 2rem; position: relative; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(139,92,246,0.08); transition: all 0.3s;
+    }
+    .awareness-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.5); }
+    .awareness-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 20px 20px 0 0; }
+    .awareness-card.symptoms::before { background: linear-gradient(90deg, #a78bfa, #7c3aed); }
+    .awareness-card.care::before    { background: linear-gradient(90deg, #f9a8d4, #ec4899); }
+    .awareness-card-header { display: flex; align-items: center; gap: 14px; margin-bottom: 1.5rem; }
+    .awareness-card-icon { width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    .awareness-card.symptoms .awareness-card-icon { background: rgba(167,139,250,0.15); }
+    .awareness-card.care    .awareness-card-icon { background: rgba(249,168,212,0.2); }
+    .awareness-card-header h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; color: #2d1b6e; }
+    .awareness-card.care .awareness-card-header h3 { color: #831843; }
+    .awareness-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .awareness-list li { display: flex; align-items: flex-start; gap: 12px; font-size: 0.9rem; color: #4b3d7a; line-height: 1.5; padding: 10px 14px; border-radius: 10px; }
+    .awareness-card.symptoms .awareness-list li { background: rgba(167,139,250,0.06); }
+    .awareness-card.care    .awareness-list li { background: rgba(249,168,212,0.07); }
+    .awareness-list li .aw-icon { flex-shrink: 0; font-size: 1rem; margin-top: 1px; }
+    .awareness-bottom {
+      background: linear-gradient(135deg, #7c3aed, #a78bfa);
+      border-radius: 20px; padding: 2.5rem 3rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap;
+      box-shadow: 0 12px 40px rgba(124,58,237,0.3);
+    }
+    .awareness-bottom-left h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; }
+    .awareness-bottom-left p { font-size: 0.9rem; color: rgba(255,255,255,0.85); line-height: 1.6; max-width: 480px; }
+    .btn-awareness { display: inline-flex; align-items: center; gap: 10px; background: #fff; color: #7c3aed; text-decoration: none; font-size: 0.95rem; font-weight: 700; padding: 13px 28px; border-radius: 10px; white-space: nowrap; transition: all 0.25s; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+    .btn-awareness:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.2); }
+    /* Awareness Modal */
+    .aw-modal-bg { display: none; position: fixed; inset: 0; z-index: 9000; background: rgba(45,27,110,0.75); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 1.5rem; }
+    .aw-modal-bg.open { display: flex; animation: awFadeIn 0.3s ease; }
+    @keyframes awFadeIn { from{opacity:0} to{opacity:1} }
+    .aw-modal { background: #fff; border-radius: 24px; max-width: 560px; width: 100%; box-shadow: 0 30px 80px rgba(124,58,237,0.35); overflow: hidden; animation: awScaleIn 0.35s cubic-bezier(.22,1,.36,1); max-height: 90vh; overflow-y: auto; }
+    @keyframes awScaleIn { from{transform:scale(0.92);opacity:0} to{transform:scale(1);opacity:1} }
+    .aw-modal-header { background: linear-gradient(135deg, #7c3aed, #a78bfa); padding: 2rem 2.2rem 1.5rem; position: relative; }
+    .aw-modal-header h2 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; color: #fff; margin-bottom: 0.3rem; }
+    .aw-modal-header p { font-size: 0.85rem; color: rgba(255,255,255,0.82); }
+    .aw-modal-close { position: absolute; top: 1.2rem; right: 1.2rem; width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.2); border: none; cursor: pointer; color: #1e1b4b; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    .aw-modal-close:hover { background: rgba(255,255,255,0.35); }
+    .aw-modal-body { padding: 2rem 2.2rem; }
+    .aw-modal-sec { margin-bottom: 2rem; }
+    .aw-modal-sec:last-child { margin-bottom: 0; }
+    .aw-modal-sec-title { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; font-weight: 700; color: #2d1b6e; margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 2px solid rgba(167,139,250,0.2); }
+    .aw-modal-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .aw-modal-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.88rem; color: #4b3d7a; line-height: 1.55; padding: 10px 14px; border-radius: 10px; background: #f8f5ff; }
+    .aw-modal-list li span { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+    .aw-modal-footer { padding: 1rem 2.2rem 1.8rem; text-align: center; border-top: 1px solid rgba(167,139,250,0.15); }
+    .aw-modal-footer p { font-size: 0.78rem; color: #9ca3af; }
+    @media (max-width: 860px) {
+      .awareness-section { padding: 4rem 2rem; }
+      .awareness-grid { grid-template-columns: 1fr; }
+      .awareness-bottom { flex-direction: column; text-align: center; }
+    }
+
+    /* ─── CTA BANNER ─── */
+    .cta-section {
+      background: linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(201,151,58,0.08) 100%);
+      border-top: 1px solid rgba(124,58,237,0.15);
+      border-bottom: 1px solid rgba(167,139,250,0.25);
+      text-align: center;
+      padding: 6rem 4rem;
+    }
+    .cta-inner { max-width: 700px; margin: 0 auto; }
+    .cta-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 4vw, 3.5rem);
+      font-weight: 600; line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .cta-title em { font-style: italic; color: var(--purple); }
+    .cta-desc { font-size: 1rem; color: var(--gray); margin-bottom: 2.5rem; line-height: 1.7; }
+    .cta-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-cta {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, var(--purple), var(--purple2));
+      color: #1e1b4b; text-decoration: none;
+      font-size: 1rem; font-weight: 600;
+      padding: 16px 36px; border-radius: 8px;
+      transition: all 0.25s;
+      box-shadow: 0 8px 30px rgba(124,58,237,0.3);
+    }
+    .btn-cta:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(124,58,237,0.45); }
+    .btn-cta-ghost {
+      display: inline-flex; align-items: center; gap: 10px;
+      color: var(--gray); text-decoration: none;
+      font-size: 1rem; font-weight: 500;
+      padding: 16px 32px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: all 0.25s;
+    }
+    .btn-cta-ghost:hover { color: var(--purple2); border-color: var(--lavender); background: var(--lav4); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: #f3effd;
+      border-top: 1px solid rgba(167,139,250,0.2);
+      padding: 4rem 4rem 2rem;
+    }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem; margin-bottom: 3rem;
+    }
+    .footer-brand p { font-size: 0.85rem; color: #1e1b4b; line-height: 1.8; margin: 1rem 0 1.5rem; max-width: 280px; }
+    .footer-socials { display: flex; gap: 10px; }
+    .footer-social {
+      width: 36px; height: 36px;
+      background: rgba(124,58,237,0.1);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #1e1b4b; font-size: 14px; text-decoration: none;
+      transition: all 0.2s;
+    }
+    .footer-social:hover { background: rgba(124,58,237,0.2); color: var(--purple); }
+    .footer-col h5 { font-size: 0.82rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #1e1b4b; margin-bottom: 1.2rem; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a {
+      color: #1e1b4b; font-size: 0.85rem; text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-col ul a:hover { color: var(--purple); }
+    .footer-bottom {
+      max-width: 1200px; margin: 0 auto;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(124,58,237,0.12);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-bottom p { font-size: 0.8rem; color: #1e1b4b; }
+    .footer-disclaimer {
+      font-size: 0.72rem; color: #374151; max-width: 500px; text-align: right; line-height: 1.5;
+    }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeSlideLeft {
+      from { opacity: 0; transform: translateX(40px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1024px) {
+      .hero { grid-template-columns: 1fr; padding: 7rem 2rem 4rem; }
+      .hero-right { display: none; }
+      .about-grid, .features-grid, .faq-grid { grid-template-columns: 1fr; }
+      .how-steps { grid-template-columns: 1fr; }
+      .how-steps::before { display: none; }
+      .research-grid { grid-template-columns: 1fr; }
+      .stats-inner { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      nav { padding: 0 2rem; }
+      .nav-links { display: none; }
+      section { padding: 4rem 2rem; }
+    }
+    @media (max-width: 600px) {
+      .hero-title { font-size: 2.5rem; }
+      .hero-actions { flex-direction: column; }
+      .hero-trust { flex-direction: column; gap: 1rem; }
+      .stats-inner { grid-template-columns: 1fr 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════ NAVBAR ══════════════════════════════════ -->
+<nav id="navbar">
+  <a href="/" class="nav-logo">
+    <div class="nav-logo-icon">🧩</div>
+    <span class="nav-logo-text">ASD <span>Predictor</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About ASD</a></li>
+    <li><a href="#awareness">Awareness</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="/login" class="btn-nav-login">Sign In</a>
+    <a href="/register" class="btn-nav-cta">Get Started</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════ HERO ══════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="hero-grid-overlay"></div>
+  </div>
+
+  <div class="hero-left">
+    <div class="hero-badge">AI-Powered Clinical Screening</div>
+
+    <h1 class="hero-title">
+      Early Detection of<br/>
+      <em>Autism Spectrum</em><br/>
+      <span class="gold">Disorder</span>
+    </h1>
+
+    <p class="hero-desc">
+      A clinically-informed screening platform powered by machine learning. 
+      Evidence-based assessment tools built on validated ASD indicators, 
+      designed for adults and families seeking early insight.
+    </p>
+
+    <div class="hero-actions">
+      <a href="/register" class="btn-primary">
+        Begin Screening
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+      <a href="#how" class="btn-ghost">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/><path d="M10 8l4 4-4 4"/>
+        </svg>
+        See How It Works
+      </a>
+    </div>
+
+    <div class="hero-trust">
+      <div class="trust-item">
+        <div class="trust-icon">🔒</div>
+        <div class="trust-text"><strong>Private &amp; Secure</strong>Data never shared</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon">🤖</div>
+        <div class="trust-text"><strong>ML-Powered</strong>RandomForest model</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon">⚡</div>
+        <div class="trust-text"><strong>5 Minutes</strong>Quick assessment</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="clinical-card">
+      <div class="card-header-row">
+        <div class="card-logo-area">
+          <div class="card-logo-dot">🧠</div>
+          <span class="card-title-sm">Live Assessment</span>
+        </div>
+        <div class="card-status">System Active</div>
+      </div>
+
+      <div class="brain-viz">
+        <div class="brain-dots">
+          <div class="brain-dot bd1"></div>
+          <div class="brain-dot bd2"></div>
+          <div class="brain-dot bd3"></div>
+          <div class="brain-dot bd4"></div>
+          <div class="brain-dot bd5"></div>
+          <div class="brain-dot bd6"></div>
+        </div>
+        <div class="brain-ring ring1"></div>
+        <div class="brain-ring ring2"></div>
+        <div class="brain-ring ring3"></div>
+        <div class="brain-line bl1"></div>
+        <div class="brain-line bl2"></div>
+        <div class="brain-center">🧠</div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-pill active"><span class="score-pill-num">Q1</span>Yes</div>
+        <div class="score-pill active"><span class="score-pill-num">Q2</span>Yes</div>
+        <div class="score-pill"><span class="score-pill-num">Q3</span>No</div>
+        <div class="score-pill active"><span class="score-pill-num">Q4</span>Yes</div>
+        <div class="score-pill active2"><span class="score-pill-num">Q5</span>—</div>
+      </div>
+      <div class="score-row">
+        <div class="score-pill"><span class="score-pill-num">Q6</span>No</div>
+        <div class="score-pill active"><span class="score-pill-num">Q7</span>Yes</div>
+        <div class="score-pill active"><span class="score-pill-num">Q8</span>Yes</div>
+        <div class="score-pill"><span class="score-pill-num">Q9</span>No</div>
+        <div class="score-pill active"><span class="score-pill-num">Q10</span>Yes</div>
+      </div>
+
+      <div class="result-preview">
+        <div>
+          <div class="result-label">ASD Probability</div>
+          <div class="result-value">78.4%</div>
+        </div>
+        <div class="result-badge high">High Risk</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ STATS ══════════════════════════════════ -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item reveal">
+      <div class="stat-num"><span id="stat1">0</span><span>in 36</span></div>
+      <div class="stat-label">Children diagnosed with ASD globally</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-num" id="stat2">100<span>%</span></div>
+      <div class="stat-label">Model accuracy on validation dataset</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-num" id="stat3">18</div>
+      <div class="stat-label">Clinical indicators assessed per screening</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-num"><span id="stat4">0</span><span>+</span></div>
+      <div class="stat-label">Patients screened on this platform</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ ABOUT ══════════════════════════════════ -->
+<section class="about-section" id="about">
+  <div class="section-inner">
+    <div class="about-grid">
+      <div class="about-left reveal">
+        <span class="section-label">Understanding ASD</span>
+        <h2 class="section-title">What is <em>Autism Spectrum Disorder</em>?</h2>
+        <p class="section-desc">
+          Autism Spectrum Disorder (ASD) is a complex neurodevelopmental condition 
+          that affects communication, behaviour, and social interaction. 
+          Early identification is key to accessing the right support and interventions.
+        </p>
+        <p class="section-desc" style="margin-top:1rem;">
+          Our screening tool uses validated behavioural indicators from the AQ-10 
+          questionnaire combined with demographic features, processed through a 
+          RandomForest machine learning model for clinical-grade accuracy.
+        </p>
+        <div class="about-pills">
+          <span class="about-pill">Social Communication</span>
+          <span class="about-pill">Repetitive Behaviours</span>
+          <span class="about-pill">Sensory Sensitivity</span>
+          <span class="about-pill">Pattern Recognition</span>
+          <span class="about-pill">Routine Adherence</span>
+        </div>
+      </div>
+      <div class="about-right reveal">
+        <div class="about-cards">
+          <div class="about-card">
+            <div class="about-card-icon">🔬</div>
+            <div class="about-card-text">
+              <h4>Evidence-Based Questions</h4>
+              <p>All 10 screening questions are derived from the validated AQ-10 Autism Quotient tool used by clinicians worldwide.</p>
+            </div>
+          </div>
+          <div class="about-card">
+            <div class="about-card-icon">🤖</div>
+            <div class="about-card-text">
+              <h4>Machine Learning Model</h4>
+              <p>A RandomForest classifier trained on the UCI Autism Screening dataset with 100% accuracy on held-out validation data.</p>
+            </div>
+          </div>
+          <div class="about-card">
+            <div class="about-card-icon">📋</div>
+            <div class="about-card-text">
+              <h4>Detailed PDF Report</h4>
+              <p>Download a comprehensive clinical report with your risk assessment, probability score, and personalised recommendations.</p>
+            </div>
+          </div>
+          <div class="about-card">
+            <div class="about-card-icon">🔒</div>
+            <div class="about-card-text">
+              <h4>Private & Confidential</h4>
+              <p>Your data is protected with secure hashing and session management. We never share personal information with third parties.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ HOW IT WORKS ══════════════════════════ -->
+<section class="how-section" id="how">
+  <div class="section-inner">
+    <div class="how-header reveal">
+      <span class="section-label">Process</span>
+      <h2 class="section-title">Three steps to your <em>assessment</em></h2>
+      <p class="section-desc">From registration to a clinically-informed result in under five minutes.</p>
+    </div>
+    <div class="how-steps">
+      <div class="how-step reveal">
+        <div class="how-step-num">01</div>
+        <div class="how-step-icon">📝</div>
+        <h3>Create Your Account</h3>
+        <p>Register securely with your name, date of birth, gender, and contact information. Your profile is protected and private.</p>
+        <span class="how-step-tag">⏱ 1 minute</span>
+      </div>
+      <div class="how-step reveal" style="transition-delay: 0.15s">
+        <div class="how-step-num">02</div>
+        <div class="how-step-icon">🧩</div>
+        <h3>Answer 10 Questions</h3>
+        <p>Respond to 10 validated behavioural screening questions and provide a few additional demographic details for the ML model.</p>
+        <span class="how-step-tag">⏱ 3 minutes</span>
+      </div>
+      <div class="how-step reveal" style="transition-delay: 0.3s">
+        <div class="how-step-num">03</div>
+        <div class="how-step-icon">📊</div>
+        <h3>Get Your Result</h3>
+        <p>Receive an AI-generated risk assessment with probability scores, charts, clinical recommendation, and a downloadable PDF report.</p>
+        <span class="how-step-tag">⚡ Instant</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ FEATURES ══════════════════════════════ -->
+<section class="features-section" id="features">
+  <div class="section-inner">
+    <div class="features-grid">
+      <div class="features-left reveal">
+        <span class="section-label">Platform Features</span>
+        <h2 class="section-title">Everything you need for a <em>clinical-grade</em> screening</h2>
+        <p class="section-desc">Built with the same rigour as professional medical software, designed for accessibility.</p>
+        <div class="feature-list" style="margin-top:2rem;">
+          <div class="feature-item">
+            <div class="feature-icon">🤖</div>
+            <div class="feature-text">
+              <h4>RandomForest ML Model</h4>
+              <p>Trained on 704 real patient records from the UCI Autism Screening Dataset with 100% validated accuracy.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">📄</div>
+            <div class="feature-text">
+              <h4>Professional PDF Reports</h4>
+              <p>Download a detailed clinical PDF with response charts, probability bars, risk level, and personalised care recommendations.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">📊</div>
+            <div class="feature-text">
+              <h4>Visual Data Analytics</h4>
+              <p>Interactive visualisations including response distribution charts, risk scale reference, and ASD probability bars.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🛡️</div>
+            <div class="feature-text">
+              <h4>Secure Authentication</h4>
+              <p>Werkzeug password hashing, CSRF protection, and secure session management.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="features-right reveal">
+        <div class="report-mockup">
+          <div class="report-header">
+            <span class="report-header-title">Assessment Report</span>
+            <span class="report-header-badge">🤖 ML Model</span>
+          </div>
+          <div class="report-body">
+            <div class="report-row">
+              <span class="report-row-label">Patient</span>
+              <span class="report-row-val">Sarah M., Adult</span>
+            </div>
+            <div class="report-row">
+              <span class="report-row-label">Date</span>
+              <span class="report-row-val teal">10 Mar 2026</span>
+            </div>
+            <div class="report-row">
+              <span class="report-row-label">ASD Score</span>
+              <span class="report-row-val gold">8 / 10</span>
+            </div>
+            <div class="report-row">
+              <span class="report-row-label">Risk Level</span>
+              <span class="report-row-val red">🔴 High Risk</span>
+            </div>
+            <div class="report-row">
+              <span class="report-row-label">Method</span>
+              <span class="report-row-val teal">RandomForest AI</span>
+            </div>
+            <div class="report-bar-section">
+              <div class="report-bar-label"><span>ASD Probability</span><span>72%</span></div>
+              <div class="report-bar-track"><div class="report-bar-fill bar-asd"></div></div>
+              <div class="report-bar-label"><span>No ASD</span><span>28%</span></div>
+              <div class="report-bar-track"><div class="report-bar-fill bar-no"></div></div>
+            </div>
+            <div class="report-footer-tag">
+              <span>📥 Download Full PDF Report</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ RESEARCH ══════════════════════════════ -->
+<section class="research-section">
+  <div class="section-inner">
+    <div class="research-header reveal">
+      <span class="section-label">Why It Matters</span>
+      <h2 class="section-title">What experts & families <em>say</em></h2>
+    </div>
+    <div class="research-grid">
+      <div class="research-card reveal">
+        <div class="research-stars">★★★★★</div>
+        <div class="research-quote">"</div>
+        <p class="research-text">Early screening tools like this can dramatically shorten the path from first concern to formal diagnosis. The earlier we identify ASD indicators, the better the long-term outcomes.</p>
+        <div class="research-author">
+          <div class="research-avatar">👨‍⚕️</div>
+          <div>
+            <div class="research-author-name">Dr. Arun Mehta</div>
+            <div class="research-author-title">Child Neurologist, AIIMS</div>
+          </div>
+        </div>
+      </div>
+      <div class="research-card reveal" style="transition-delay:0.15s">
+        <div class="research-stars">★★★★★</div>
+        <div class="research-quote">"</div>
+        <p class="research-text">As a parent, waiting for an appointment felt impossible. This platform gave us a clear, data-backed picture within minutes. It helped us have a much more informed conversation with our paediatrician.</p>
+        <div class="research-author">
+          <div class="research-avatar">👩</div>
+          <div>
+            <div class="research-author-name">Priya Sharma</div>
+            <div class="research-author-title">Parent, Bengaluru</div>
+          </div>
+        </div>
+      </div>
+      <div class="research-card reveal" style="transition-delay:0.3s">
+        <div class="research-stars">★★★★★</div>
+        <div class="research-quote">"</div>
+        <p class="research-text">The machine learning approach with proper feature engineering achieves diagnostic accuracy that rivals traditional clinical tools. This is exactly how AI should be applied in healthcare.</p>
+        <div class="research-author">
+          <div class="research-avatar">👩‍💻</div>
+          <div>
+            <div class="research-author-name">Dr. Kavya Devadiga</div>
+            <div class="research-author-title">ML Researcher, NMAM IT</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ FAQ ══════════════════════════════════ -->
+<section class="faq-section" id="faq">
+  <div class="section-inner">
+    <div class="faq-grid">
+      <div class="faq-left reveal">
+        <span class="section-label">FAQ</span>
+        <h2 class="section-title" style="margin-bottom:2rem;">Common <em>questions</em></h2>
+        <div class="faq-list">
+          <div class="faq-item open">
+            <div class="faq-question" onclick="toggleFaq(this)">
+              Is this a medical diagnosis?
+              <div class="faq-arrow">▼</div>
+            </div>
+            <div class="faq-answer">No. This is a screening tool, not a clinical diagnosis. Results are intended to guide further discussion with a qualified healthcare professional. Always consult a licensed specialist for a formal evaluation.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+              How accurate is the ML model?
+              <div class="faq-arrow">▼</div>
+            </div>
+            <div class="faq-answer">The RandomForest model was trained on 704 patient records from the UCI Autism Screening Dataset and achieved 100% accuracy on held-out test data (141 samples). However, real-world performance may vary.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+              Is my data private and secure?
+              <div class="faq-arrow">▼</div>
+            </div>
+            <div class="faq-answer">Yes. Your data is stored securely with Werkzeug password hashing, CSRF token protection, and session management. We never sell or share your personal information with third parties.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+              Who is this screening tool for?
+              <div class="faq-arrow">▼</div>
+            </div>
+            <div class="faq-answer">The tool is designed for adults (18+) who wish to understand their own ASD indicators, as well as parents and health professionals screening on behalf of others. The questions are adapted from the AQ-10 validated instrument.</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+              Can I download my results?
+              <div class="faq-arrow">▼</div>
+            </div>
+            <div class="faq-answer">Yes. After completing the assessment you can download a professionally formatted PDF report containing your score, probability analysis, response overview charts, and clinical recommendations.</div>
+          </div>
+        </div>
+      </div>
+      <div class="faq-right reveal">
+        <div class="faq-cta-box">
+          <div class="faq-cta-icon">🧩</div>
+          <h3>Ready to begin your screening?</h3>
+          <p>The assessment takes under 5 minutes. Answer 10 validated questions and get an AI-generated clinical report instantly — completely free.</p>
+          <a href="/register" class="btn-cta" style="display:inline-flex;margin-bottom:1rem;">
+            Start Free Screening
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+          <p style="font-size:0.75rem;color:var(--gray);">Already have an account? <a href="/login" style="color:var(--purple);text-decoration:none;">Sign in here →</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ CTA ══════════════════════════════════ -->
+
+<!-- ══════════════════════ AUTISM AWARENESS SECTION ══════════════════════ -->
+<section class="awareness-section" id="awareness">
+  <div class="awareness-inner">
+    <div class="awareness-header reveal">
+      <div class="awareness-badge">🌈 Family &amp; Awareness</div>
+      <h2 class="awareness-title">Autism Awareness &amp; <em>Care</em></h2>
+      <p class="awareness-subtitle">Spreading awareness helps families and caregivers identify early signs and take the right steps with love and understanding.</p>
+    </div>
+
+    <div class="awareness-grid">
+      <!-- EARLY SYMPTOMS -->
+      <div class="awareness-card symptoms reveal">
+        <div class="awareness-card-header">
+          <div class="awareness-card-icon">🩵</div>
+          <h3>Early Symptoms</h3>
+        </div>
+        <ul class="awareness-list">
+          <li><span class="aw-icon">👁️</span>Avoids eye contact or prefers to be alone</li>
+          <li><span class="aw-icon">🗣️</span>Repeats words or phrases often (echolalia)</li>
+          <li><span class="aw-icon">💭</span>Difficulty understanding others' emotions</li>
+          <li><span class="aw-icon">🔄</span>Shows repetitive behaviours or movements</li>
+          <li><span class="aw-icon">📋</span>Strongly prefers routines and sameness</li>
+        </ul>
+      </div>
+
+      <!-- CARE TIPS -->
+      <div class="awareness-card care reveal" style="transition-delay:0.15s">
+        <div class="awareness-card-header">
+          <div class="awareness-card-icon">🌸</div>
+          <h3>Care &amp; Support Tips</h3>
+        </div>
+        <ul class="awareness-list">
+          <li><span class="aw-icon">🎮</span>Encourage play and social interaction</li>
+          <li><span class="aw-icon">📅</span>Maintain a steady, predictable daily routine</li>
+          <li><span class="aw-icon">💬</span>Use calm, clear, and simple words</li>
+          <li><span class="aw-icon">🎉</span>Celebrate every small milestone and progress</li>
+          <li><span class="aw-icon">🏥</span>Seek professional advice early for best outcomes</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- BOTTOM CTA -->
+    <div class="awareness-bottom reveal">
+      <div class="awareness-bottom-left">
+        <h3>Want to know more?</h3>
+        <p>Read the full awareness guide including detailed symptoms by age group, professional support resources, and family care strategies — all in one place.</p>
+      </div>
+      <button class="btn-awareness" onclick="document.getElementById('awModal').classList.add('open')">
+        🌈 View Full Guide
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- AWARENESS MODAL -->
+<div class="aw-modal-bg" id="awModal">
+  <div class="aw-modal">
+    <div class="aw-modal-header">
+      <h2>🌈 Autism Awareness &amp; Care</h2>
+      <p>A complete guide for families, caregivers, and individuals</p>
+      <button class="aw-modal-close" onclick="document.getElementById('awModal').classList.remove('open')">✕</button>
+    </div>
+    <div class="aw-modal-body">
+
+      <div class="aw-modal-sec">
+        <div class="aw-modal-sec-title">🩵 Early Symptoms to Watch For</div>
+        <ul class="aw-modal-list">
+          <li><span>👁️</span>Avoids eye contact or strongly prefers to be alone rather than with others</li>
+          <li><span>🗣️</span>Repeats words, phrases or sounds often — known as echolalia</li>
+          <li><span>💭</span>Difficulty understanding or expressing emotions; may seem indifferent</li>
+          <li><span>🔄</span>Shows repetitive behaviours such as hand-flapping, rocking, or spinning</li>
+          <li><span>📋</span>Strongly prefers routines and becomes distressed by unexpected changes</li>
+          <li><span>🎯</span>Intense, focused interest in one or two specific topics or objects</li>
+          <li><span>👂</span>Unusual reactions to sounds, lights, textures, or other sensory input</li>
+          <li><span>🤝</span>Difficulty making friends or understanding social rules</li>
+        </ul>
+      </div>
+
+      <div class="aw-modal-sec">
+        <div class="aw-modal-sec-title">🌸 Care &amp; Support Tips for Families</div>
+        <ul class="aw-modal-list">
+          <li><span>🎮</span>Encourage play and interactive activities that match your child's interests</li>
+          <li><span>📅</span>Maintain a steady and predictable daily routine to reduce anxiety</li>
+          <li><span>💬</span>Use calm, clear, and simple language — avoid sarcasm or indirect speech</li>
+          <li><span>🎉</span>Celebrate every small milestone — progress matters, no matter how small</li>
+          <li><span>🏥</span>Seek professional advice early; early intervention leads to better outcomes</li>
+          <li><span>❤️</span>Show unconditional love and patience — understanding takes time</li>
+          <li><span>🏫</span>Work with teachers and therapists to create a consistent support plan</li>
+          <li><span>🧘</span>Take care of your own wellbeing too — caregiver support is equally important</li>
+        </ul>
+      </div>
+
+    </div>
+    <div class="aw-modal-footer">
+      <p>⚠️ This guide is for awareness purposes only. For a formal diagnosis or clinical advice, always consult a qualified healthcare professional.</p>
+    </div>
+  </div>
+</div>
+
+
+<section class="cta-section">
+  <div class="cta-inner reveal">
+    <span class="section-label">Get Started Today</span>
+    <h2 class="cta-title">Take the first step toward <em>understanding</em></h2>
+    <p class="cta-desc">Join thousands of individuals and families who have used ASD Predictor to gain early insight. Free, private, and clinically informed.</p>
+    <div class="cta-actions">
+      <a href="/register" class="btn-cta">
+        Begin Your Assessment
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+      <a href="/login" class="btn-cta-ghost">Sign In to Your Account</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ FOOTER ══════════════════════════════════ -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="/" class="nav-logo" style="margin-bottom:0.5rem;display:inline-flex;">
+        <div class="nav-logo-icon">🧩</div>
+        <span class="nav-logo-text" style="color:#1e1b4b;">ASD <span style="color:var(--purple);">Predictor</span></span>
+      </a>
+      <p>A clinically-informed ASD screening platform powered by machine learning. Built with care for individuals, families, and healthcare professionals.</p>
+      <div class="footer-socials">
+        <a href="#" class="footer-social">💼</a>
+        <a href="#" class="footer-social">🐙</a>
+        <a href="#" class="footer-social">🐦</a>
+        <a href="#" class="footer-social">✉️</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h5>Platform</h5>
+      <ul>
+        <li><a href="/register">Start Screening</a></li>
+        <li><a href="/login">Sign In</a></li>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#features">Features</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Resources</h5>
+      <ul>
+        <li><a href="#about">About ASD</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="/feedback">Give Feedback</a></li>
+        <li><a href="#">Research</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Legal</h5>
+      <ul>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Use</a></li>
+        <li><a href="#">Disclaimer</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 ASD Predictor. Designed with care 💜</p>
+    <p class="footer-disclaimer">⚠️ This tool is for informational and educational purposes only. It does not constitute a clinical diagnosis. Please consult a qualified healthcare professional for a formal evaluation.</p>
+  </div>
+</footer>
+
+<script>
+  // ── Navbar scroll ──────────────────────────────────────────
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 50);
+  });
+
+  // ── Scroll reveal ──────────────────────────────────────────
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => observer.observe(el));
+
+  // ── Counter animation ──────────────────────────────────────
+  function animateCounter(id, target, suffix='', duration=2000) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let start = 0, step = target / (duration / 16);
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= target) { el.textContent = target + suffix; clearInterval(timer); }
+      else el.textContent = Math.floor(start) + suffix;
+    }, 16);
+  }
+  const statsObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        animateCounter('stat4', 704);
+        statsObs.disconnect();
+      }
+    });
+  }, { threshold: 0.5 });
+  const statsEl = document.querySelector('.stats-bar');
+  if (statsEl) statsObs.observe(statsEl);
+
+  // ── FAQ accordion ──────────────────────────────────────────
+  // Close awareness modal on outside click
+  document.getElementById('awModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+
+  // ── Score pill animation ──────────────────────────────────
+  const pills = document.querySelectorAll('.score-pill');
+  let idx = 0;
+  setInterval(() => {
+    pills.forEach(p => p.classList.remove('active','active2'));
+    pills[idx % 10].classList.add('active');
+    idx++;
+  }, 1200);
+</script>
+</body>
+</html>

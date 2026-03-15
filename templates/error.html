@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Error — ASD Predictor{% endblock %}
+
+{% block extra_css %}
+.error-page {
+  min-height: calc(100vh - 66px - 80px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 3rem 1.5rem; background: var(--bg2); position: relative;
+}
+.error-page::before {
+  content: ''; position: fixed; inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 20%, rgba(239,68,68,0.05), transparent);
+  pointer-events: none;
+}
+.error-card {
+  width: 100%; max-width: 500px; text-align: center;
+  background: #fff;
+  border: 1.5px solid rgba(239,68,68,0.2);
+  border-radius: 20px; padding: 3rem 2.5rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+  position: relative;
+}
+.error-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #e05a5a, #f87171, var(--lavender));
+  border-radius: 20px 20px 0 0;
+}
+.error-code {
+  font-family: var(--font-display); font-size: 6rem; font-weight: 700;
+  color: rgba(239,68,68,0.15); line-height: 1; margin-bottom: 0;
+}
+.error-icon { font-size: 3rem; margin-bottom: 1rem; }
+.error-card h2 { font-family: var(--font-display); font-size: 1.8rem; font-weight: 600; color: var(--text); margin-bottom: 0.6rem; }
+.error-card p { font-size: 0.88rem; color: var(--gray); line-height: 1.7; margin-bottom: 2rem; }
+.error-actions { display: flex; flex-direction: column; gap: 10px; }
+.btn-home {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--purple), var(--purple2));
+  color: var(--text); text-decoration: none;
+  font-size: 0.9rem; font-weight: 600;
+  box-shadow: 0 4px 15px rgba(124,58,237,0.3);
+  transition: all 0.25s;
+}
+.btn-home:hover { transform: translateY(-2px); }
+.btn-back {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 11px; border-radius: 8px;
+  background: transparent; color: var(--gray); text-decoration: none;
+  font-size: 0.88rem; font-weight: 500;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: all 0.25s;
+}
+.btn-back:hover { border-color: #374151; color: var(--text); }
+{% endblock %}
+
+{% block content %}
+<div class="error-page">
+  <div class="error-card">
+    <div class="error-code">{{ error_code | default('4○4') }}</div>
+    <div class="error-icon">🔍</div>
+    <h2>{{ error_title | default('Page Not Found') }}</h2>
+    <p>{{ error_message | default("The page you're looking for doesn't exist or may have been moved. Let's get you back on track.") }}</p>
+    <div class="error-actions">
+      <a href="{{ url_for('home') }}" class="btn-home">🏠 Return to Home</a>
+      <a href="javascript:history.back()" class="btn-back">← Go Back</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

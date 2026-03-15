@@ -1,0 +1,446 @@
+{% extends "base.html" %}
+{% block title %}Create Account — ASD Predictor{% endblock %}
+
+{% block extra_css %}
+.reg-page {
+  min-height: calc(100vh - 66px - 80px);
+  display: grid; grid-template-columns: 380px 1fr;
+}
+/* ── SIDEBAR ── */
+.reg-sidebar {
+  background: linear-gradient(160deg, var(--navy2), var(--navy3));
+  border-right: 1px solid rgba(10,143,143,0.12);
+  padding: 3rem 2.5rem;
+  display: flex; flex-direction: column; gap: 2rem;
+  position: relative; overflow: hidden;
+}
+.reg-sidebar::before {
+  content: ''; position: absolute; top: -100px; left: -80px;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(10,143,143,0.1) 0%, transparent 70%);
+  border-radius: 50%; pointer-events: none;
+}
+.reg-sidebar-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.reg-sidebar-logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--teal), var(--teal2));
+  border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px;
+}
+.reg-sidebar-logo-text { font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; color: #fff; }
+.reg-sidebar-logo-text span { color: var(--purple); }
+.reg-sidebar-title {
+  font-family: var(--font-display); font-size: 1.9rem; font-weight: 600; line-height: 1.2;
+  color: #fff;
+  position: relative; z-index: 1;
+}
+.reg-sidebar-title em { font-style: italic; color: var(--purple); }
+.reg-steps { display: flex; flex-direction: column; gap: 0; position: relative; z-index: 1; }
+.reg-step {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.reg-step:last-child { border-bottom: none; }
+.reg-step-num {
+  width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700;
+  background: var(--lav3); border: 1px solid rgba(124,58,237,0.2);
+  color: var(--purple); transition: all 0.3s;
+}
+.reg-step.active .reg-step-num {
+  background: var(--purple); border-color: var(--purple); color: var(--text);
+  box-shadow: 0 0 15px rgba(10,143,143,0.4);
+}
+.reg-step-body h4 { font-size: 0.88rem; font-weight: 600; margin-bottom: 2px; color: var(--text); }
+.reg-step-body p { font-size: 0.78rem; color: var(--gray); }
+.reg-sidebar-note { position: relative; z-index: 1; font-size: 0.75rem; color: #374151; line-height: 1.6; }
+
+/* ── MAIN ── */
+.reg-main {
+  padding: 3rem 4rem; background: var(--bg);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.reg-form-wrap { max-width: 580px; width: 100%; margin: 0 auto; }
+.reg-form-header { margin-bottom: 2rem; }
+.reg-form-header h2 { font-family: var(--font-display); font-size: 2rem; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
+.reg-form-header p { font-size: 0.88rem; color: var(--gray); }
+.reg-form-header p a { color: var(--purple); text-decoration: none; }
+.ns-section-title {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--purple);
+  padding: 1.2rem 0 0.8rem;
+  border-top: 1px solid rgba(10,143,143,0.12); margin-top: 0.8rem;
+}
+.ns-section-title:first-of-type { border-top: none; padding-top: 0; }
+.ns-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.ns-form-group { margin-bottom: 1rem; }
+.ns-form-label { display: block; font-size: 0.79rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.ns-form-input, .ns-form-select {
+  width: 100%; padding: 11px 14px;
+  background: var(--lav4);
+  border: 1px solid rgba(124,58,237,0.18);
+  border-radius: 8px; color: var(--text) !important;
+  font-family: var(--font-body); font-size: 0.88rem;
+  outline: none; transition: all 0.2s; appearance: none;
+}
+.ns-form-input:focus, .ns-form-select:focus {
+  border-color: var(--purple); box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+}
+.ns-form-input::placeholder { color: var(--gray); }
+.ns-form-select option { background: var(--lav4); color: var(--text); }
+.ns-select-wrap { position: relative; }
+.ns-select-wrap::after {
+  content: '▾'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--gray); pointer-events: none; font-size: 0.85rem;
+}
+
+/* Age group cards */
+.age-group-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 4px;
+}
+.age-card input[type="radio"] { display: none; }
+.age-card label {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 6px; border-radius: 10px; cursor: pointer;
+  border: 1.5px solid rgba(124,58,237,0.15);
+  background: #ffffff;
+  transition: all 0.2s; text-align: center;
+}
+.age-card label:hover {
+  border-color: rgba(124,58,237,0.4); background: var(--lav4);
+  transform: translateY(-2px);
+}
+.age-card input[type="radio"]:checked + label {
+  border-color: var(--purple); background: var(--lav3);
+  box-shadow: 0 0 0 2px rgba(10,143,143,0.2);
+}
+.age-card-icon { font-size: 1.4rem; }
+.age-card-label { font-size: 0.72rem; font-weight: 600; color: var(--text); }
+.age-card-range { font-size: 0.65rem; color: var(--gray); }
+.age-card input[type="radio"]:checked + label .age-card-label { color: var(--purple); }
+
+/* Helper text */
+.ns-field-hint {
+  font-size: 0.72rem; color: var(--gray); margin-top: 5px;
+  display: flex; align-items: center; gap: 5px;
+}
+
+/* Error message */
+.ns-error-box {
+  background: rgba(239,68,68,0.05); border: 1px solid rgba(248,113,113,0.25);
+  color: var(--red); border-radius: 8px; padding: 10px 14px;
+  font-size: 0.85rem; margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.ns-pw-wrap { position: relative; }
+.ns-pw-toggle {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: var(--gray); font-size: 1rem;
+  transition: color 0.2s;
+}
+.ns-pw-toggle:hover { color: var(--purple); }
+.pw-strength-track {
+  height: 4px; background: rgba(255,255,255,0.07);
+  border-radius: 100px; overflow: hidden; margin-top: 8px;
+}
+.pw-strength-fill { height: 100%; border-radius: 100px; width: 0%; transition: width 0.4s, background 0.4s; }
+.pw-strength-label { font-size: 0.72rem; color: var(--gray); margin-top: 4px; }
+.ns-btn-submit {
+  width: 100%; padding: 13px; margin-top: 1.5rem;
+  background: linear-gradient(135deg, var(--purple), var(--purple2));
+  color: var(--text); font-family: var(--font-body);
+  font-size: 0.95rem; font-weight: 600;
+  border: none; border-radius: 8px; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(124,58,237,0.25); transition: all 0.25s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.ns-btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,58,237,0.4); }
+.ns-alt-action { text-align: center; font-size: 0.85rem; color: var(--gray); margin-top: 1.2rem; }
+.ns-alt-action a { color: var(--purple); text-decoration: none; font-weight: 500; }
+
+@media(max-width: 900px) {
+  .reg-page { grid-template-columns: 1fr; }
+  .reg-sidebar { display: none; }
+  .reg-main { padding: 2rem 1.5rem; }
+  .ns-grid-2 { grid-template-columns: 1fr; }
+  .age-group-grid { grid-template-columns: repeat(3, 1fr); }
+}
+{% endblock %}
+
+{% block content %}
+<div class="reg-page">
+
+  <!-- SIDEBAR -->
+  <div class="reg-sidebar">
+    <a href="{{ url_for('home') }}" class="reg-sidebar-logo">
+      <div class="reg-sidebar-logo-icon">🧩</div>
+      <span class="reg-sidebar-logo-text">ASD <span>Predictor</span></span>
+    </a>
+    <div>
+      <h2 class="reg-sidebar-title">Join thousands on the path to <em>clarity</em></h2>
+    </div>
+    <div class="reg-steps">
+      <div class="reg-step active">
+        <div class="reg-step-num">1</div>
+        <div class="reg-step-body"><h4>Personal Details</h4><p>Name, date of birth, gender</p></div>
+      </div>
+      <div class="reg-step">
+        <div class="reg-step-num">2</div>
+        <div class="reg-step-body"><h4>Age Group</h4><p>Tailors questions for you</p></div>
+      </div>
+      <div class="reg-step">
+        <div class="reg-step-num">3</div>
+        <div class="reg-step-body"><h4>Contact & Password</h4><p>Email address and security</p></div>
+      </div>
+    </div>
+    <p class="reg-sidebar-note">🔒 Your information is encrypted and never shared. Registration is completely free.</p>
+  </div>
+
+  <!-- MAIN -->
+  <div class="reg-main">
+    <div class="reg-form-wrap">
+
+      <div class="reg-form-header">
+        <h2>Create Account</h2>
+        <p>Already registered? <a href="{{ url_for('login') }}">Sign in →</a></p>
+      </div>
+
+      {% if msg %}
+      <div class="ns-error-box">❌ {{ msg }}</div>
+      {% endif %}
+
+      <form method="POST" action="{{ url_for('register') }}" id="regForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+        <!-- ── PERSONAL INFORMATION ── -->
+        <div class="ns-section-title">Personal Information</div>
+        <div class="ns-grid-2">
+          <div class="ns-form-group">
+            <label class="ns-form-label" for="name">Full Name</label>
+            <input class="ns-form-input" type="text" id="name" name="name"
+                   placeholder="Your full name" required autocomplete="name" />
+          </div>
+          <div class="ns-form-group">
+            <label class="ns-form-label" for="dob">Date of Birth</label>
+            <input class="ns-form-input" type="date" id="dob" name="dob"
+                   required max="{{ today }}" onchange="autoSelectAgeGroup(this.value)" />
+            <div class="ns-field-hint">ℹ️ Used to compute your age for the ML model</div>
+          </div>
+        </div>
+
+        <div class="ns-form-group">
+          <label class="ns-form-label" for="gender">Gender</label>
+          <div class="ns-select-wrap">
+            <select class="ns-form-select" id="gender" name="gender" required>
+              <option value="" disabled selected>Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other / Prefer not to say</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ── AGE GROUP ── -->
+        <div class="ns-section-title">Age Group</div>
+        <p style="font-size:0.82rem;color:var(--gray);margin-bottom:1rem;">
+          Select the age group that best describes <strong style="color:var(--gray)">who is being assessed</strong>.
+          This determines which set of 10 questions you will answer.
+          <em style="color:var(--teal2);">(Auto-selected when you enter your date of birth)</em>
+        </p>
+        <div class="age-group-grid" id="ageGrid">
+
+          <div class="age-card">
+            <input type="radio" id="ag_child"  name="age_group" value="child" />
+            <label for="ag_child">
+              <span class="age-card-icon">🧒</span>
+              <span class="age-card-label">Child</span>
+              <span class="age-card-range">Under 12</span>
+            </label>
+          </div>
+
+          <div class="age-card">
+            <input type="radio" id="ag_teen"   name="age_group" value="teen" />
+            <label for="ag_teen">
+              <span class="age-card-icon">🧑‍🎓</span>
+              <span class="age-card-label">Teen</span>
+              <span class="age-card-range">12 – 17</span>
+            </label>
+          </div>
+
+          <div class="age-card">
+            <input type="radio" id="ag_adult"  name="age_group" value="adult" required />
+            <label for="ag_adult">
+              <span class="age-card-icon">🧑</span>
+              <span class="age-card-label">Adult</span>
+              <span class="age-card-range">18 – 39</span>
+            </label>
+          </div>
+
+          <div class="age-card">
+            <input type="radio" id="ag_middle" name="age_group" value="middle" />
+            <label for="ag_middle">
+              <span class="age-card-icon">🧑‍💼</span>
+              <span class="age-card-label">Middle Age</span>
+              <span class="age-card-range">40 – 59</span>
+            </label>
+          </div>
+
+          <div class="age-card">
+            <input type="radio" id="ag_senior" name="age_group" value="senior" />
+            <label for="ag_senior">
+              <span class="age-card-icon">🧓</span>
+              <span class="age-card-label">Senior</span>
+              <span class="age-card-range">60 +</span>
+            </label>
+          </div>
+
+        </div>
+        <div class="ns-field-hint" style="margin-top:8px;">
+          ⚠️ You can change this manually. The selected group determines your 10 screening questions.
+        </div>
+
+        <!-- ── CONTACT ── -->
+        <div class="ns-section-title">Contact Information</div>
+        <div class="ns-grid-2">
+          <div class="ns-form-group">
+            <label class="ns-form-label" for="email">Email Address</label>
+            <input class="ns-form-input" type="email" id="email" name="email"
+                   placeholder="you@example.com" required autocomplete="email" />
+          </div>
+          <div class="ns-form-group">
+            <label class="ns-form-label" for="phone">Mobile Number</label>
+            <div style="position:relative;display:flex;align-items:center;">
+              <span style="position:absolute;left:12px;font-size:0.85rem;font-weight:700;color:var(--purple);pointer-events:none;z-index:1;">+91</span>
+              <input class="ns-form-input" type="tel" id="phone" name="phone"
+                     placeholder="9876543210" maxlength="10" required
+                     autocomplete="tel" style="padding-left:46px;"
+                     oninput="this.value=this.value.replace(/[^0-9]/g,'')" />
+            </div>
+            <div class="ns-field-hint">📱 10-digit mobile number</div>
+          </div>
+        </div>
+
+        <!-- ── SECURITY ── -->
+        <div class="ns-section-title">Security</div>
+        <div class="ns-form-group">
+          <label class="ns-form-label" for="password">Password</label>
+          <div class="ns-pw-wrap">
+            <input class="ns-form-input" type="password" id="password" name="password"
+                   placeholder="Min. 8 characters" required
+                   oninput="checkStrength(this.value)" autocomplete="new-password" />
+            <button type="button" class="ns-pw-toggle" onclick="togglePw('password',this)">👁</button>
+          </div>
+          <div class="pw-strength-track"><div class="pw-strength-fill" id="pw-fill"></div></div>
+          <div class="pw-strength-label" id="pw-label">Enter a password</div>
+        </div>
+
+        <div class="ns-form-group">
+          <label class="ns-form-label" for="confirm_password">Confirm Password</label>
+          <div class="ns-pw-wrap">
+            <input class="ns-form-input" type="password" id="confirm_password" name="confirm_password"
+                   placeholder="Repeat your password" required
+                   oninput="checkMatch()" autocomplete="new-password" />
+            <button type="button" class="ns-pw-toggle" onclick="togglePw('confirm_password',this)">👁</button>
+          </div>
+          <div class="pw-strength-label" id="match-label"></div>
+        </div>
+
+        <button type="submit" class="ns-btn-submit" id="submitBtn">
+          Create My Account
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </form>
+
+      <div class="ns-alt-action">
+        Already have an account? <a href="{{ url_for('login') }}">Sign in →</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Auto-select age group from DOB ──────────────────────────────────────────
+function autoSelectAgeGroup(dobValue) {
+  if (!dobValue) return;
+  const dob  = new Date(dobValue);
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+
+  let group = 'adult';
+  if      (age < 12)  group = 'child';
+  else if (age < 18)  group = 'teen';
+  else if (age < 40)  group = 'adult';
+  else if (age < 60)  group = 'middle';
+  else                group = 'senior';
+
+  const radio = document.getElementById('ag_' + group);
+  if (radio) radio.checked = true;
+}
+
+// ── Validate age group selected before submit ───────────────────────────────
+document.getElementById('regForm').addEventListener('submit', function(e) {
+  const selected = document.querySelector('input[name="age_group"]:checked');
+  if (!selected) {
+    e.preventDefault();
+    const grid = document.getElementById('ageGrid');
+    grid.style.outline = '2px solid #f87171';
+    grid.style.borderRadius = '10px';
+    grid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const hint = document.createElement('div');
+    hint.style.cssText = 'color:#f87171;font-size:0.8rem;margin-top:6px;';
+    hint.textContent = '❌ Please select an age group to continue.';
+    hint.id = 'ag-error';
+    if (!document.getElementById('ag-error')) grid.after(hint);
+  }
+});
+
+// ── Password helpers ─────────────────────────────────────────────────────────
+function togglePw(id, btn) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+
+function checkStrength(val) {
+  const fill  = document.getElementById('pw-fill');
+  const label = document.getElementById('pw-label');
+  let score = 0;
+  if (val.length >= 8)          score++;
+  if (/[A-Z]/.test(val))        score++;
+  if (/[0-9]/.test(val))        score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+  const configs = [
+    { w: '0%',   c: 'transparent', t: 'Enter a password' },
+    { w: '25%',  c: '#e05a5a',     t: 'Weak' },
+    { w: '50%',  c: '#facc15',     t: 'Fair' },
+    { w: '75%',  c: '#0cbfbf',     t: 'Good' },
+    { w: '100%', c: '#4ade80',     t: 'Strong ✓' },
+  ];
+  const cfg = configs[score];
+  fill.style.width      = cfg.w;
+  fill.style.background = cfg.c;
+  label.textContent     = cfg.t;
+  label.style.color     = cfg.c;
+}
+
+function checkMatch() {
+  const p1  = document.getElementById('password').value;
+  const p2  = document.getElementById('confirm_password').value;
+  const lbl = document.getElementById('match-label');
+  if (!p2) { lbl.textContent = ''; return; }
+  if (p1 === p2) { lbl.textContent = '✓ Passwords match'; lbl.style.color = '#4ade80'; }
+  else           { lbl.textContent = '✗ Passwords do not match'; lbl.style.color = '#f87171'; }
+}
+
+// ── Set max date for DOB (cannot be future) ──────────────────────────────────
+document.getElementById('dob').max = new Date().toISOString().split('T')[0];
+</script>
+{% endblock %}

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login — ASD Predictor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:  #faf8ff; --bg2: #f3effd; --bg3: #ede8fb;
+      --purple: #7c3aed; --purple2: #6d28d9; --lavender: #a78bfa;
+      --lav2: #c4b5fd; --lav3: #ede9fe; --lav4: #f5f3ff; --white: #ffffff;
+      --gray: #6b7280; --gray2: #9ca3af; --text: #1e1b4b;
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body:    'Outfit', sans-serif;
+    }
+    body {
+      font-family: var(--font-body); background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 2rem;
+      position: relative; overflow: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 50% 0%, rgba(124,58,237,0.1), transparent),
+        radial-gradient(ellipse 50% 40% at 80% 100%, rgba(201,151,58,0.05), transparent);
+      pointer-events: none;
+    }
+    .grid-bg {
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(124,58,237,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+    }
+    .login-box {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 420px;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(124,58,237,0.15);
+      border-radius: 20px; padding: 2.8rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 20px 60px rgba(124,58,237,0.15);
+    }
+    .login-box::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--purple), var(--purple), var(--lavender));
+      border-radius: 20px 20px 0 0;
+    }
+    .login-header { text-align: center; margin-bottom: 2rem; }
+    .admin-icon {
+      width: 64px; height: 64px; margin: 0 auto 1rem;
+      background: rgba(124,58,237,0.12);
+      border: 1px solid rgba(124,58,237,0.25);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center; font-size: 28px;
+    }
+    .login-header h2 { font-family: var(--font-display); font-size: 2rem; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
+    .login-header p { font-size: 0.84rem; color: var(--gray); }
+    .admin-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2);
+      color: var(--purple); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.8px;
+      padding: 4px 12px; border-radius: 100px; margin-top: 0.5rem;
+    }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-label { display: block; font-size: 0.79rem; font-weight: 600; color: var(--gray); margin-bottom: 6px; }
+    .form-input {
+      width: 100%; padding: 12px 14px;
+      background: rgba(245,243,255,0.8);
+      border: 1px solid rgba(124,58,237,0.18);
+      border-radius: 8px; color: var(--text);
+      font-family: var(--font-body); font-size: 0.9rem;
+      outline: none; transition: all 0.2s;
+    }
+    .form-input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
+    .form-input::placeholder { color: #6b7280; }
+    .pw-wrap { position: relative; }
+    .pw-toggle {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: var(--gray); font-size: 1rem;
+      transition: color 0.2s;
+    }
+    .pw-toggle:hover { color: var(--purple); }
+    .btn-login {
+      width: 100%; padding: 13px; margin-top: 0.5rem;
+      background: linear-gradient(135deg, var(--purple), var(--purple2));
+      color: var(--text); font-family: var(--font-body);
+      font-size: 0.95rem; font-weight: 600;
+      border: none; border-radius: 8px; cursor: pointer;
+      box-shadow: 0 6px 20px rgba(124,58,237,0.35);
+      transition: all 0.25s;
+    }
+    .btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,58,237,0.5); }
+    .back-link {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      margin-top: 1.4rem; font-size: 0.84rem; color: var(--purple); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--purple); }
+    .flash-box {
+      background: rgba(239,68,68,0.06); border: 1px solid rgba(248,113,113,0.25);
+      color: var(--red); border-radius: 8px; padding: 10px 14px;
+      font-size: 0.84rem; margin-bottom: 1.2rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <div class="login-box">
+    <div class="login-header">
+      <div class="admin-icon">🛡️</div>
+      <h2>Admin Access</h2>
+      <p>Restricted area — authorised personnel only</p>
+      <div class="admin-badge">🔒 Secure Login</div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+      <div class="flash-box">❌ {{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('admin_login') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+      <div class="form-group">
+        <label class="form-label" for="username">Admin Username</label>
+        <input class="form-input" type="text" id="username" name="username"
+               placeholder="Enter admin username" required autocomplete="username" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="pw-wrap">
+          <input class="form-input" type="password" id="password" name="password"
+                 placeholder="Enter admin password" required />
+          <button type="button" class="pw-toggle" onclick="togglePw()">👁</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login">Access Dashboard →</button>
+    </form>
+
+    <a href="{{ url_for('home') }}" class="back-link">← Return to ASD Predictor</a>
+  </div>
+
+  <script>
+  function togglePw() {
+    const inp = document.getElementById('password');
+    const btn = document.querySelector('.pw-toggle');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+  }
+  </script>
+</body>
+</html>

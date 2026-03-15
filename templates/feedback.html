@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Share Feedback — ASD Predictor{% endblock %}
+
+{% block extra_css %}
+.simple-page {
+  min-height: calc(100vh - 66px - 80px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 3rem 1.5rem;
+  background: var(--bg);
+  position: relative;
+}
+.simple-page::before {
+  content: ''; position: fixed; inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(124,58,237,0.06), transparent);
+  pointer-events: none;
+}
+.form-card {
+  width: 100%; max-width: 620px;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid rgba(124,58,237,0.15);
+  border-radius: 20px; padding: 2.8rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+  position: relative; overflow: hidden;
+}
+.form-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--purple), var(--purple), var(--lavender));
+}
+.form-card-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+.form-card h2 {
+  font-family: var(--font-display); font-size: 2rem; font-weight: 600; color: var(--text); margin-bottom: 0.4rem;
+}
+.form-card p { font-size: 0.88rem; color: var(--gray); line-height: 1.7; margin-bottom: 2rem; }
+
+.ns-form-group { margin-bottom: 1.2rem; }
+.ns-form-label { display: block; font-size: 0.79rem; font-weight: 600; color: var(--gray); margin-bottom: 6px; }
+.ns-form-input, .ns-form-select, .ns-form-textarea {
+  width: 100%; padding: 11px 14px;
+  background: rgba(245,243,255,0.8);
+  border: 1px solid rgba(124,58,237,0.18);
+  border-radius: 8px; color: var(--text);
+  font-family: var(--font-body); font-size: 0.88rem;
+  outline: none; transition: all 0.2s;
+}
+.ns-form-input:focus, .ns-form-select:focus, .ns-form-textarea:focus {
+  border-color: var(--purple); box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+}
+.ns-form-input::placeholder, .ns-form-textarea::placeholder { color: #6b7280; }
+.ns-form-textarea { resize: vertical; min-height: 120px; }
+.ns-form-select { appearance: none; }
+.ns-select-wrap { position: relative; }
+.ns-select-wrap::after {
+  content: '▾'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--gray); pointer-events: none; font-size: 0.85rem;
+}
+.ns-form-select option { background: #f3effd; }
+
+/* Star Rating */
+.star-rating { display: flex; gap: 8px; flex-direction: row-reverse; justify-content: flex-end; }
+.star-rating input { display: none; }
+.star-rating label {
+  font-size: 1.8rem; cursor: pointer; color: rgba(124,58,237,0.25);
+  transition: color 0.2s, transform 0.2s;
+}
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input:checked ~ label { color: var(--lavender); }
+.star-rating label:hover { transform: scale(1.2); }
+
+.ns-btn-submit {
+  width: 100%; padding: 13px; margin-top: 0.5rem;
+  background: linear-gradient(135deg, var(--purple), var(--purple2));
+  color: var(--text); font-family: var(--font-body);
+  font-size: 0.95rem; font-weight: 600;
+  border: none; border-radius: 8px; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(124,58,237,0.35);
+  transition: all 0.25s;
+}
+.ns-btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,58,237,0.5); }
+{% endblock %}
+
+{% block content %}
+<div class="simple-page">
+  <div class="form-card">
+    <div class="form-card-icon">💬</div>
+    <h2>Share Your Feedback</h2>
+    <p>Help us improve ASD Predictor. Your experience matters — let us know what you think about the platform and your assessment.</p>
+
+    <form method="POST" action="{{ url_for('feedback') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+      <div class="ns-form-group">
+        <label class="ns-form-label">Overall Rating</label>
+        <div class="star-rating">
+          <input type="radio" id="s5" name="rating" value="5" /><label for="s5">★</label>
+          <input type="radio" id="s4" name="rating" value="4" /><label for="s4">★</label>
+          <input type="radio" id="s3" name="rating" value="3" /><label for="s3">★</label>
+          <input type="radio" id="s2" name="rating" value="2" /><label for="s2">★</label>
+          <input type="radio" id="s1" name="rating" value="1" /><label for="s1">★</label>
+        </div>
+      </div>
+
+      <div class="ns-form-group">
+        <label class="ns-form-label" for="category">Category</label>
+        <div class="ns-select-wrap">
+          <select class="ns-form-select" id="category" name="category">
+            <option value="">Select a category</option>
+            <option value="General Experience">General Experience</option>
+            <option value="Assessment Accuracy">Assessment Accuracy</option>
+            <option value="Report Quality">Report Quality</option>
+            <option value="Interface & Design">Interface & Design</option>
+            <option value="Technical Issue">Technical Issue</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ns-form-group">
+        <label class="ns-form-label" for="message">Your Feedback</label>
+        <textarea class="ns-form-textarea" id="message" name="message"
+                  placeholder="Tell us about your experience with ASD Predictor…" required></textarea>
+      </div>
+
+      <button type="submit" class="ns-btn-submit">Submit Feedback →</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

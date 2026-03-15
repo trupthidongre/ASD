@@ -1,0 +1,3 @@
+email,name,age_group,Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10,total_score,risk_level,prediction,probability,ethnicity,jundice,family_asd,contry_of_res,used_app_before,relation,ml_used,timestamp
+shruti@gmail.com,Shruti,middle,1,0,1,0,1,1,0,1,0,1,6,Low Risk,0,13.0,South Asian,no,yes,India,no,Self,True,2026-03-15 13:58:38
+shruti@gmail.com,Shruti,middle,0,1,0,1,1,1,1,1,1,1,8,High Risk,1,90.0,White-European,yes,yes,Australia,yes,Parent,True,2026-03-15 14:01:32

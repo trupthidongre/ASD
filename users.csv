@@ -1,0 +1,2 @@
+name,dob,age_group,gender,email,phone,password
+Shruti,1984-01-05,middle,Female,shruti@gmail.com,8784512954,scrypt:32768:8:1$rb8lQhOg04ZmWVAo$e07cae05074cfddfe541983e767d3bb5b4d58d3192366580c89a6a7249435623fd63bf0dbc2f94289435f126e00b64e4d6216838636424fbcf75950e01530a30

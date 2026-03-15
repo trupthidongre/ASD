@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — ASD Predictor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #faf8ff; --bg2: #f3effd; --bg3: #ede8fb;
+      --purple: #7c3aed; --purple2: #6d28d9;
+      --lavender: #a78bfa; --lav2: #c4b5fd; --lav3: #ede9fe; --lav4: #f5f3ff;
+      --white: #ffffff; --gray: #6b7280; --gray2: #9ca3af; --text: #1e1b4b; --text2: #3730a3; --border: rgba(167,139,250,0.25);
+      --red: #ef4444; --green: #10b981;
+      --sidebar-w: 240px;
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body:    'Outfit', sans-serif;
+    }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; }
+    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--lavender); border-radius: 3px; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0;
+      width: var(--sidebar-w); z-index: 100;
+      background: rgba(255,255,255,0.97);
+      border-right: 1px solid rgba(167,139,250,0.2);
+      display: flex; flex-direction: column;
+      backdrop-filter: blur(20px);
+    }
+    .sidebar-top {
+      padding: 1.5rem 1.5rem 1rem;
+      border-bottom: 1px solid rgba(10,143,143,0.1);
+    }
+    .sidebar-brand {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-display); font-size: 1.3rem; font-weight: 600;
+    }
+    .sidebar-brand-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--purple), var(--lavender));
+      border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .sidebar-brand span { color: var(--teal2); }
+    .sidebar-admin-badge {
+      margin-top: 8px;
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--lav3); border: 1px solid rgba(124,58,237,0.2);
+      border-radius: 100px; padding: 3px 10px;
+      font-size: 0.7rem; color: var(--purple); font-weight: 600; letter-spacing: 0.5px;
+    }
+    .sidebar-admin-badge::before { content: ''; width: 6px; height: 6px; background: var(--teal2); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    .sidebar-nav { flex: 1; padding: 1rem 0.8rem; display: flex; flex-direction: column; gap: 4px; }
+    .sidebar-nav-label {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--text2); padding: 0.8rem 0.8rem 0.4rem;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 8px;
+      color: var(--gray); text-decoration: none; font-size: 0.85rem; font-weight: 500;
+      transition: all 0.2s;
+    }
+    .sidebar-link:hover { background: var(--lav4); color: var(--text); }
+    .sidebar-link.active { background: var(--lav3); color: var(--purple); border: 1px solid rgba(124,58,237,0.2); }
+    .sidebar-link-icon { font-size: 1rem; width: 20px; text-align: center; }
+    .sidebar-link.danger { color: var(--red); }
+    .sidebar-link.danger:hover { background: rgba(248,113,113,0.08); }
+
+    .sidebar-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid rgba(167,139,250,0.15);
+      font-size: 0.72rem; color: #6b7280;
+    }
+
+    /* ── MAIN ── */
+    .admin-main { margin-left: var(--sidebar-w); min-height: 100vh; }
+
+    /* TOP BAR */
+    .topbar {
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(167,139,250,0.2);
+      padding: 0 2.5rem; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 600; color: var(--text); }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .topbar-date { font-size: 0.8rem; color: #6b7280; }
+    .live-badge {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25);
+      color: var(--green); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.5px;
+      padding: 4px 10px; border-radius: 100px;
+    }
+    .live-badge::before { content: ''; width: 6px; height: 6px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; }
+
+    /* CONTENT */
+    .admin-content { padding: 2rem 2.5rem; }
+
+    /* STAT CARDS */
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 2rem; }
+    .stat-card {
+      background: #fff; border: 1.5px solid rgba(167,139,250,0.2);
+      border-radius: 14px; padding: 1.4rem;
+      display: flex; gap: 1rem; align-items: flex-start;
+      transition: all 0.3s;
+    }
+    .stat-card:hover { border-color: var(--lavender); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,58,237,0.1); }
+    .stat-icon {
+      width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+    }
+    .stat-icon.teal { background: var(--lav3); }
+    .stat-icon.gold  { background: rgba(201,151,58,0.15); }
+    .stat-icon.green { background: rgba(74,222,128,0.12); }
+    .stat-icon.red   { background: rgba(248,113,113,0.12); }
+    .stat-label { font-size: 0.75rem; color: var(--gray); font-weight:500; margin-bottom: 4px; }
+    .stat-value { font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; line-height: 1; }
+    .stat-value.teal  { color: var(--purple); }
+    .stat-value.gold  { color: var(--lavender); }
+    .stat-value.green { color: #4ade80; }
+    .stat-value.red   { color: #f87171; }
+
+    /* CHARTS */
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    .chart-panel {
+      background: #fff; border: 1.5px solid rgba(167,139,250,0.2);
+      border-radius: 14px; padding: 1.5rem;
+    }
+    .chart-panel-title {
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      color: var(--purple); margin-bottom: 1.2rem; padding-bottom: 0.8rem;
+      border-bottom: 1px solid rgba(10,143,143,0.1);
+    }
+    .chart-panel img { width: 100%; border-radius: 8px; }
+    .chart-panel p { font-size: 0.75rem; color: var(--gray); text-align: center; margin-top: 0.5rem; }
+
+    /* RISK BREAKDOWN */
+    .risk-breakdown { display: flex; flex-direction: column; gap: 10px; margin-top: 1rem; }
+    .risk-row { display: flex; align-items: center; gap: 10px; font-size: 0.83rem; }
+    .risk-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .risk-dot.low  { background: #4ade80; }
+    .risk-dot.mod  { background: #facc15; }
+    .risk-dot.high { background: #f87171; }
+    .risk-bar-track { flex: 1; height: 6px; background: rgba(255,255,255,0.07); border-radius: 100px; overflow: hidden; }
+    .risk-bar-fill { height: 100%; border-radius: 100px; }
+    .risk-bar-fill.low  { background: #4ade80; }
+    .risk-bar-fill.mod  { background: #facc15; }
+    .risk-bar-fill.high { background: #f87171; }
+    .risk-count { font-size: 0.78rem; color: var(--text); font-weight: 600; min-width: 40px; text-align: right; }
+
+    /* TABLE */
+    .table-panel {
+      background: #fff; border: 1.5px solid rgba(167,139,250,0.2);
+      border-radius: 14px; overflow: hidden; margin-bottom: 2rem;
+    }
+    .table-panel-header {
+      padding: 1.2rem 1.5rem;
+      border-bottom: 1px solid rgba(10,143,143,0.1);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .table-panel-title { font-size: 0.78rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--purple); }
+    .ns-table { width: 100%; border-collapse: collapse; }
+    .ns-table thead tr { background: var(--lav4); }
+    .ns-table th {
+      padding: 10px 16px; text-align: left;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.8px;
+      text-transform: uppercase; color: var(--text2);
+      border-bottom: 1px solid rgba(167,139,250,0.15);
+    }
+    .ns-table td {
+      padding: 12px 16px; font-size: 0.84rem;
+      border-bottom: 1px solid rgba(167,139,250,0.1);
+    }
+    .ns-table tbody tr:last-child td { border-bottom: none; }
+    .ns-table tbody tr:hover td { background: var(--lav4); }
+    .score-chip {
+      display: inline-flex; align-items: center;
+      background: var(--lav3); border: 1px solid rgba(124,58,237,0.2);
+      color: var(--purple); font-size: 0.78rem; font-weight: 700;
+      padding: 3px 10px; border-radius: 100px;
+    }
+    .risk-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.78rem; font-weight: 600;
+      padding: 4px 10px; border-radius: 100px;
+    }
+    .risk-chip.low  { background: rgba(74,222,128,0.1);  color: #4ade80; }
+    .risk-chip.mod  { background: rgba(250,204,21,0.1);  color: #facc15; }
+    .risk-chip.high { background: rgba(248,113,113,0.1); color: #f87171; }
+    .td-muted { color: var(--gray); }
+    .empty-state { text-align: center; padding: 3rem; color: var(--text); }
+    .empty-state-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+
+    @media(max-width: 1100px) { .stat-grid { grid-template-columns: 1fr 1fr; } .charts-grid { grid-template-columns: 1fr; } }
+    @media(max-width: 768px) { .sidebar { display: none; } .admin-main { margin-left: 0; } .admin-content { padding: 1.5rem; } .stat-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<div class="sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">🧩</div>
+      <span>ASD <span>Predictor</span></span>
+    </div>
+    <div class="sidebar-admin-badge">Admin Panel</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-nav-label">Main</div>
+    <a href="/admin/dashboard" class="sidebar-link active">
+      <span class="sidebar-link-icon">📊</span> Dashboard
+    </a>
+    <a href="/" class="sidebar-link">
+      <span class="sidebar-link-icon">🌐</span> View Site
+    </a>
+
+    <div class="sidebar-nav-label">Data</div>
+    <a href="#" class="sidebar-link">
+      <span class="sidebar-link-icon">👥</span> Users
+    </a>
+    <a href="#" class="sidebar-link">
+      <span class="sidebar-link-icon">📋</span> Assessments
+    </a>
+    <a href="#" class="sidebar-link">
+      <span class="sidebar-link-icon">💬</span> Feedback
+    </a>
+
+    <div class="sidebar-nav-label">System</div>
+    <a href="/admin/logout" class="sidebar-link danger">
+      <span class="sidebar-link-icon">🚪</span> Logout
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">© 2026 ASD Predictor Admin</div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="admin-main">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-title">Admin Dashboard</div>
+    <div class="topbar-right">
+      <span class="topbar-date">{{ now if now else '' }}</span>
+      <div class="live-badge">Live</div>
+    </div>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- STAT CARDS -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-icon teal">👥</div>
+        <div>
+          <div class="stat-label">Registered Users</div>
+          <div class="stat-value teal">{{ stats.total_users }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon gold">📋</div>
+        <div>
+          <div class="stat-label">Total Assessments</div>
+          <div class="stat-value gold">{{ stats.total_assessments }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">📈</div>
+        <div>
+          <div class="stat-label">Avg Score / 10</div>
+          <div class="stat-value green">{{ stats.avg_score }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">💬</div>
+        <div>
+          <div class="stat-label">Feedback Received</div>
+          <div class="stat-value red">{{ stats.total_feedback }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="charts-grid">
+      <div class="chart-panel">
+        <div class="chart-panel-title">Risk Level Distribution</div>
+        <img src="{{ url_for('static', filename=stats.risk_chart) }}" alt="Risk Distribution" />
+        <div class="risk-breakdown">
+          {% set total = stats.total_assessments %}
+          {% set low = stats.risk_counts['Low Risk'] %}
+          {% set mod = stats.risk_counts['Moderate Risk'] %}
+          {% set high = stats.risk_counts['High Risk'] %}
+          <div class="risk-row">
+            <div class="risk-dot low"></div>
+            <span style="font-size:0.82rem;color:var(--text);">Low Risk</span>
+            <div class="risk-bar-track">
+              <div class="risk-bar-fill low" style="width:{{ ('%.0f'|format(low/total*100)) if total > 0 else 0 }}%"></div>
+            </div>
+            <span class="risk-count">{{ low }} <span style="color:var(--gray);font-weight:400;">({{ ('%.0f'|format(low/total*100)) if total > 0 else 0 }}%)</span></span>
+          </div>
+          <div class="risk-row">
+            <div class="risk-dot mod"></div>
+            <span style="font-size:0.82rem;color:var(--text);">Moderate Risk</span>
+            <div class="risk-bar-track">
+              <div class="risk-bar-fill mod" style="width:{{ ('%.0f'|format(mod/total*100)) if total > 0 else 0 }}%"></div>
+            </div>
+            <span class="risk-count">{{ mod }} <span style="color:var(--gray);font-weight:400;">({{ ('%.0f'|format(mod/total*100)) if total > 0 else 0 }}%)</span></span>
+          </div>
+          <div class="risk-row">
+            <div class="risk-dot high"></div>
+            <span style="font-size:0.82rem;color:var(--text);">High Risk</span>
+            <div class="risk-bar-track">
+              <div class="risk-bar-fill high" style="width:{{ ('%.0f'|format(high/total*100)) if total > 0 else 0 }}%"></div>
+            </div>
+            <span class="risk-count">{{ high }} <span style="color:var(--gray);font-weight:400;">({{ ('%.0f'|format(high/total*100)) if total > 0 else 0 }}%)</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-panel">
+        <div class="chart-panel-title">Assessments Over Time</div>
+        <img src="{{ url_for('static', filename=stats.trend_chart) }}" alt="Trend Chart" />
+        <p>Showing last 14 days of activity</p>
+      </div>
+    </div>
+
+    <!-- RECENT ASSESSMENTS TABLE -->
+    <div class="table-panel">
+      <div class="table-panel-header">
+        <span class="table-panel-title">Recent Assessments (Last 10)</span>
+      </div>
+      {% if answers %}
+      <table class="ns-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Age Group</th>
+            <th>Score</th>
+            <th>Risk Level</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in answers %}
+          <tr>
+            <td class="td-muted">{{ loop.index }}</td>
+            <td style="font-weight:500;">{{ row.get('name', 'N/A') }}</td>
+            <td class="td-muted">{{ row.get('email', 'N/A') }}</td>
+            <td>{{ row.get('age_group', 'N/A') | title }}</td>
+            <td><span class="score-chip">{{ row.get('total_score', '?') }} / 10</span></td>
+            <td>
+              {% set rl = row.get('risk_level', '') %}
+              {% if 'Low' in rl %}
+                <span class="risk-chip low">🟢 {{ rl }}</span>
+              {% elif 'Moderate' in rl %}
+                <span class="risk-chip mod">🟡 {{ rl }}</span>
+              {% elif 'High' in rl %}
+                <span class="risk-chip high">🔴 {{ rl }}</span>
+              {% else %}
+                <span class="td-muted">—</span>
+              {% endif %}
+            </td>
+            <td class="td-muted" style="font-size:0.8rem;">{{ row.get('timestamp', 'N/A')[:10] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <p>No assessments recorded yet.</p>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

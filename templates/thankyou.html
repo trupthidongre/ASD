@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Thank You — ASD Predictor{% endblock %}
+
+{% block extra_css %}
+.ty-page {
+  min-height: calc(100vh - 66px - 80px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 3rem 1.5rem;
+  background: var(--bg2);
+  position: relative;
+}
+.ty-page::before {
+  content: ''; position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 10%, rgba(124,58,237,0.1), transparent),
+    radial-gradient(ellipse 40% 40% at 80% 80%, rgba(201,151,58,0.05), transparent);
+  pointer-events: none;
+}
+.ty-card {
+  width: 100%; max-width: 520px; text-align: center;
+  background: #fff;
+  border: 1.5px solid rgba(124,58,237,0.18);
+  border-radius: 20px; padding: 3rem 2.5rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+  position: relative;
+}
+.ty-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--purple), var(--purple), var(--lavender));
+  border-radius: 20px 20px 0 0;
+}
+.ty-check {
+  width: 80px; height: 80px; margin: 0 auto 1.5rem;
+  background: rgba(16,185,129,0.08);
+  border: 2px solid rgba(74,222,128,0.3);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.5rem;
+  animation: checkPop 0.6s cubic-bezier(.22,1,.36,1);
+}
+@keyframes checkPop {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.ty-card h2 {
+  font-family: var(--font-display); font-size: 2.2rem; font-weight: 600; color: var(--text);
+  margin-bottom: 0.6rem;
+}
+.ty-card p {
+  font-size: 0.9rem; color: var(--gray); line-height: 1.8; margin-bottom: 2rem;
+}
+.ty-actions { display: flex; flex-direction: column; gap: 10px; }
+.btn-home {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--purple), var(--purple2));
+  color: var(--text); text-decoration: none;
+  font-size: 0.9rem; font-weight: 600;
+  box-shadow: 0 6px 20px rgba(124,58,237,0.35);
+  transition: all 0.25s;
+}
+.btn-home:hover { transform: translateY(-2px); }
+.btn-assess {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px; border-radius: 8px;
+  background: transparent; color: var(--purple); text-decoration: none;
+  font-size: 0.88rem; font-weight: 600;
+  border: 1.5px solid rgba(124,58,237,0.2);
+  transition: all 0.25s;
+}
+.btn-assess:hover { background: var(--lav3); }
+{% endblock %}
+
+{% block content %}
+<div class="ty-page">
+  <div class="ty-card">
+    <div class="ty-check">✅</div>
+    <h2>Thank You!</h2>
+    <p>Your feedback has been received and means a great deal to us. We're continuously working to improve ASD Predictor to better serve individuals and families seeking clarity.</p>
+    <p style="font-size:0.82rem;color:var(--gray);">Your voice helps us build a more accessible, accurate, and compassionate platform.</p>
+    <div class="ty-actions">
+      <a href="{{ url_for('home') }}" class="btn-home">
+        🏠 Return to Home
+      </a>
+      <a href="{{ url_for('questions') }}" class="btn-assess">
+        🧩 Take Assessment Again
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
